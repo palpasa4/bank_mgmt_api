@@ -1,0 +1,16 @@
+[
+    {
+        "bank_acc_id": "ACC-6ff19bc6",
+        "fullname": "Palistha Mdhr ",
+        "address": "Chagal",
+        "contact_no": "9861834111",
+        "balance": 375400.0
+    },
+    {
+        "bank_acc_id": "ACC-f89b0b3d",
+        "fullname": "Oggy Bhai",
+        "address": "LA",
+        "contact_no": "9861834111",
+        "balance": 18000.0
+    }
+]

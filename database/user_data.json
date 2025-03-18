@@ -1,0 +1,14 @@
+[
+    {
+        "cust_id": "CUST-fc518c52",
+        "username": "pallu",
+        "password": "pallupw",
+        "role": "user"
+    },
+    {
+        "cust_id": "CUST-936dca51",
+        "username": "oggy",
+        "password": "oggypw",
+        "role": "user"
+    }
+]
