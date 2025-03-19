@@ -6,5 +6,9 @@
     {
         "cust_id": "CUST-936dca51",
         "bank_acc_id": "ACC-f89b0b3d"
+    },
+    {
+        "cust_id": "CUST-8721089e",
+        "bank_acc_id": "ACC-395c7a2e"
     }
 ]

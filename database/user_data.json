@@ -10,5 +10,11 @@
         "username": "oggy",
         "password": "oggypw",
         "role": "user"
+    },
+    {
+        "cust_id": "CUST-8721089e",
+        "username": "palpasanew",
+        "password": "oggypw",
+        "role": "user"
     }
 ]

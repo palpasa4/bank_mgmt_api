@@ -44,7 +44,7 @@ def create_user_resource(newuser:User,request:Request):
             if(token[0]==user["admin_id"]):
                 data=load_json("database/user_data.json")
                 if (any(user for user in data if user["username"] == newuser.username)):
-                    return {"message":"Error creating user. Enter details again."}
+                    return {"Erro":"Error creating user. Enter details again."}
                 else:
                     cust_id=f"CUST-{str(uuid.uuid4())[:8]}"
                     c=Customer(cust_id,newuser.username,newuser.password,"user")
@@ -52,7 +52,7 @@ def create_user_resource(newuser:User,request:Request):
                     data.append(new_data)
                     write_json("database/user_data.json",data)          
                     if(newuser.opening_balance<500):
-                        return {"message":"Minimum opening balance is 500!"}
+                        return {"Error":"Minimum opening balance is 500!"}
                     else:
                         bank_acc_id= f"ACC-{str(uuid.uuid4())[:8]}"
                         new_user={
@@ -129,7 +129,7 @@ def view_details(request:Request):
                 return {"User Details":filtered_data}
             else:
                 user_detail=[data for data in merged_data if token[0]==data["cust_id"] ]
-                return {"Your Details":user_detail[0]}
+                return {"User Details":user_detail[0]}
         else:
             raise HTTPException(status_code=400,detail="Mismatched length of lists!")
             
@@ -144,17 +144,11 @@ def view_transactions(request:Request):
         transactions=load_json("database/transactions.json")
         if(token[1]=="admin"):
             transactions=[TransactionDetail(**transaction) for transaction in transactions]
-            if transactions:
-                return {"Transaction details": transactions}
-            else:
-                return {"Message":"No transactions made."}
+            return {"Transaction details": transactions}
             
         else:
             relations=load_json("database/relation.json")
             bank_id=[relation["bank_acc_id"] for relation in relations if token[0]==relation["cust_id"]]
             transactions=[transaction for transaction in transactions if bank_id[0]==transaction["bank_id"]]
-            if(transactions):
-                return{"Transaction details":transactions}
-            else:
-                return{"Message":"No transactions made."}
+            return{"Transaction details":transactions} #consistency while displaying o/p!
     raise HTTPException(status_code=401,detail="Invalid User. Cannot view details!")
