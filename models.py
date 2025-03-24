@@ -1,10 +1,5 @@
 from pydantic import BaseModel
 
-# class AdminSignup(BaseModel):
-#     fullname:str
-#     username:str
-#     password:str
-
 class Login(BaseModel):
     username:str
     password:str

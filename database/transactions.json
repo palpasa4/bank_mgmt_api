@@ -1,92 +1,92 @@
 [
     {
-        "bank_id": "ACC-f89b0b3d",
-        "transaction_id": "TID-e7c8a9df",
+        "bank_id": "ACC-8e2adb20",
+        "transaction_id": "TID-708f5d51",
         "detail": "deposit",
-        "amount": 10000.0,
-        "previous balance": 2000.0,
-        "new balance": 12000.0,
-        "date": "2025-03-18 12:50:05.312779"
+        "amount": 100000.0,
+        "previous balance": 1500.0,
+        "new balance": 101500.0,
+        "date": "2025-03-23 15:34:59.522320"
     },
     {
-        "bank_id": "ACC-f89b0b3d",
-        "transaction_id": "TID-1da68e82",
+        "bank_id": "ACC-8e2adb20",
+        "transaction_id": "TID-7bf64fa7",
         "detail": "deposit",
-        "amount": 10000.0,
-        "previous balance": 12000.0,
-        "new balance": 22000.0,
-        "date": "2025-03-18 12:50:20.799481"
+        "amount": 100000.0,
+        "previous balance": 101500.0,
+        "new balance": 201500.0,
+        "date": "2025-03-23 15:35:01.940340"
     },
     {
-        "bank_id": "ACC-f89b0b3d",
-        "transaction_id": "TID-2ca57662",
+        "bank_id": "ACC-8e2adb20",
+        "transaction_id": "TID-e4b439df",
         "detail": "withdrawal",
-        "amount": 4000.0,
-        "previous balance": 22000.0,
-        "new balance": 18000.0,
-        "date": "2025-03-18 12:50:50.916143"
+        "amount": 1265.0,
+        "previous balance": 201500.0,
+        "new balance": 200235.0,
+        "date": "2025-03-23 15:35:38.715823"
     },
     {
-        "bank_id": "ACC-6ff19bc6",
-        "transaction_id": "TID-c92f7c7b",
+        "bank_id": "ACC-8e2adb20",
+        "transaction_id": "TID-33c217aa",
         "detail": "withdrawal",
-        "amount": 25000.0,
-        "previous balance": 402400.0,
-        "new balance": 377400.0,
-        "date": "2025-03-18 13:01:10.989809"
+        "amount": 12000.0,
+        "previous balance": 200235.0,
+        "new balance": 188235.0,
+        "date": "2025-03-23 15:35:48.792037"
     },
     {
-        "bank_id": "ACC-6ff19bc6",
-        "transaction_id": "TID-61b91865",
+        "bank_id": "ACC-8e2adb20",
+        "transaction_id": "TID-ccfff74d",
         "detail": "withdrawal",
-        "amount": 2000.0,
-        "previous balance": 377400.0,
-        "new balance": 375400.0,
-        "date": "2025-03-18 13:01:18.743121"
+        "amount": 12000.0,
+        "previous balance": 188235.0,
+        "new balance": 176235.0,
+        "date": "2025-03-23 15:35:49.821100"
     },
     {
-        "bank_id": "ACC-f89b0b3d",
-        "transaction_id": "TID-addf20ef",
-        "detail": "deposit",
-        "amount": 10000.0,
-        "previous balance": 18000.0,
-        "new balance": 28000.0,
-        "date": "2025-03-19 08:42:43.894043"
-    },
-    {
-        "bank_id": "ACC-f89b0b3d",
-        "transaction_id": "TID-5cb6f044",
+        "bank_id": "ACC-8e2adb20",
+        "transaction_id": "TID-a5592649",
         "detail": "withdrawal",
-        "amount": 2000.0,
-        "previous balance": 28000.0,
-        "new balance": 26000.0,
-        "date": "2025-03-19 08:43:01.906510"
+        "amount": 12000.0,
+        "previous balance": 176235.0,
+        "new balance": 164235.0,
+        "date": "2025-03-23 15:35:50.852802"
     },
     {
-        "bank_id": "ACC-f89b0b3d",
-        "transaction_id": "TID-3a20cbc0",
+        "bank_id": "ACC-5fb6750a",
+        "transaction_id": "TID-1d75d564",
         "detail": "withdrawal",
-        "amount": 2000.0,
-        "previous balance": 26000.0,
-        "new balance": 24000.0,
-        "date": "2025-03-19 08:43:03.516754"
+        "amount": 1205.0,
+        "previous balance": 500000.0,
+        "new balance": 498795.0,
+        "date": "2025-03-23 15:38:02.550734"
     },
     {
-        "bank_id": "ACC-f89b0b3d",
-        "transaction_id": "TID-18c875aa",
+        "bank_id": "ACC-5fb6750a",
+        "transaction_id": "TID-25d7112d",
         "detail": "withdrawal",
-        "amount": 2000.0,
-        "previous balance": 24000.0,
-        "new balance": 22000.0,
-        "date": "2025-03-19 08:43:04.765541"
+        "amount": 1205.0,
+        "previous balance": 498795.0,
+        "new balance": 497590.0,
+        "date": "2025-03-23 15:38:04.070854"
     },
     {
-        "bank_id": "ACC-f89b0b3d",
-        "transaction_id": "TID-1b3d4dde",
+        "bank_id": "ACC-5fb6750a",
+        "transaction_id": "TID-93964fbd",
         "detail": "withdrawal",
-        "amount": 2000.0,
-        "previous balance": 22000.0,
-        "new balance": 20000.0,
-        "date": "2025-03-19 08:43:06.141754"
+        "amount": 120000.0,
+        "previous balance": 497590.0,
+        "new balance": 377590.0,
+        "date": "2025-03-23 15:38:13.610705"
+    },
+    {
+        "bank_id": "ACC-5fb6750a",
+        "transaction_id": "TID-4b1317b4",
+        "detail": "withdrawal",
+        "amount": 120000.0,
+        "previous balance": 377590.0,
+        "new balance": 257590.0,
+        "date": "2025-03-23 15:39:24.107303"
     }
 ]

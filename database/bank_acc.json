@@ -1,23 +1,16 @@
 [
     {
-        "bank_acc_id": "ACC-6ff19bc6",
-        "fullname": "Palistha Mdhr ",
-        "address": "Chagal",
-        "contact_no": "9861834111",
-        "balance": 375400.0
-    },
-    {
-        "bank_acc_id": "ACC-f89b0b3d",
-        "fullname": "Oggy Bhai",
+        "bank_acc_id": "ACC-5fb6750a",
+        "fullname": "Palistha Manandhar",
         "address": "LA",
         "contact_no": "9861834111",
-        "balance": 20000.0
+        "balance": 257590.0
     },
     {
-        "bank_acc_id": "ACC-395c7a2e",
-        "fullname": "Palpasa Mdhr",
+        "bank_acc_id": "ACC-8e2adb20",
+        "fullname": "Palpasa Manandhar",
         "address": "LA",
         "contact_no": "9861834111",
-        "balance": 5000.0
+        "balance": 164235.0
     }
 ]

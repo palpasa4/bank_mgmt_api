@@ -1,20 +1,14 @@
 [
     {
-        "cust_id": "CUST-fc518c52",
-        "username": "pallu",
-        "password": "pallupw",
+        "cust_id": "CUST-7936729b",
+        "username": "newuser",
+        "password": "newuserpw",
         "role": "user"
     },
     {
-        "cust_id": "CUST-936dca51",
-        "username": "oggy",
-        "password": "oggypw",
-        "role": "user"
-    },
-    {
-        "cust_id": "CUST-8721089e",
-        "username": "palpasanew",
-        "password": "oggypw",
+        "cust_id": "CUST-dbafcc4d",
+        "username": "newuser1",
+        "password": "newuser1pw",
         "role": "user"
     }
 ]
