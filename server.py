@@ -8,6 +8,20 @@ from fastapi.responses import RedirectResponse
 app=FastAPI()
 
 def validate_user_data(newuser:User):
+    """
+    Validates the provided user data before adding a new user to the database.
+
+    Parameters:
+        newuser (User): An instance of the User class containing user details.
+
+    Raises:
+        HTTPException: If the username already exists in the database.
+        HTTPException: If the username is shorter than 7 characters.
+        HTTPException: If the opening balance is less than 500.
+
+    Returns:
+        None
+    """
     data=load_json("database/user_data.json")
     #Status code: 400 -> Bad Request -> Client side -> Input validation Errors
     if (any(user for user in data if user["username"] == newuser.username)):
