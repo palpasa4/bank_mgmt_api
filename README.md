@@ -11,7 +11,7 @@ A simple banking system built with FastAPI for handling basic banking operations
 - Save and view transactions.
 - Access Control (Admin/User) using ID as tokens
 
-### Technology Choices and Rationale:
+### Technology Choices:
 1. FastAPI
 2. Uvicorn
 3. JSON
