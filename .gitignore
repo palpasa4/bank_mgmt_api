@@ -2,3 +2,10 @@
 __pycache__
 rough.py
 hash.py
+archives/
+.vscode
+database/__pycache__
+core/__pycache__
+core/auth/__pycache__
+models/__pycache__
+.env
