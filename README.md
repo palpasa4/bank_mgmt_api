@@ -13,10 +13,20 @@ A simple banking system built with FastAPI for handling basic banking operations
 
 ### Technology Choices and Rationale:
 1. FastAPI: 
+A fast, modern web framework for building APIs with Python, whcih supports automatic validation and documentation generation.
+
 2. Uvicorn: 
+Uvicorn as an ASGI(Asynchronous Server Gateway Interface) server, is fast, lightweight,async-capable and provides better performance for concurrent requests.
+
 3. JSON: 
+JSON files are used as database while working with FastAPI, which works with JSON for request bodies and responses.
+
 4. Pydantic: 
+Pydantic provides data validation and parsing library, for defining data models and ensuring data integrity.
+
 5. Postman: 
+It is used as a tool for testing and interacting with APIs during development.
+
 
 ### Setup Instructions:
 

@@ -1,27 +1,18 @@
-import json,uuid
-from classes import Customer,Admin,BankAccount
-from data import load_json,write_json,to_dict
-from models import User,Login,Amount,UserDetail,TransactionDetail
-from fastapi import FastAPI,Request,HTTPException
-from fastapi.responses import RedirectResponse
+from database.tables import AdminSchema, UserSchema
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session,sessionmaker
+from database.conn import init_db, get_db
+from models.request_models import Login,User,Amount
+from fastapi import Depends, FastAPI, HTTPException, Request, Body
+from typing import Annotated
+from core.response_handler import json_response
+from core.auth.auth_handler import check_password,sign_jwt
+from core.auth.auth_bearer import JWTBearer
+from database.users_db import add_newuser,create_bank_acc,deposit
 
 app=FastAPI()
 
 def validate_user_data(newuser:User):
-    """
-    Validates the provided user data before adding a new user to the database.
-
-    Parameters:
-        newuser (User): An instance of the User class containing user details.
-
-    Raises:
-        HTTPException: If the username already exists in the database.
-        HTTPException: If the username is shorter than 7 characters.
-        HTTPException: If the opening balance is less than 500.
-
-    Returns:
-        None
-    """
     data=load_json("database/user_data.json")
     #Status code: 400 -> Bad Request -> Client side -> Input validation Errors
     if (any(user for user in data if user["username"] == newuser.username)):
@@ -48,99 +39,86 @@ def validate_token(request:Request):
 
 #admin login
 @app.post("/admin/login")
-def login_admin_resource(login:Login):
-    admin= load_json("database/admin_data.json")
-    for data in admin:
-        if (login.username == data["username"] and login.password == data["password"]):
-            return {"message": "Login Success", "admin_id": data["admin_id"]}
-    raise HTTPException(status_code=401, detail="Invalid username or password!")         
-
+async def admin_login(admin:Login,db:db_dependency):
+    db_admin = db.query(AdminSchema).filter_by(username=admin.username).first()
+    if db_admin is None or not check_password(admin.password,str(db_admin.password)): 
+        raise HTTPException(status_code=401, detail="Invalid username or password")  
+    return sign_jwt(str(db_admin.admin_id))
+     
 
 #admin validation and create user
-@app.post("/admin/create_users")
-def create_user_resource(newuser:User,request:Request):
-    token=validate_token(request)
-    #status_code: 401->Invalid request, 403->Forbidden (Authenticated but not authorized)
-    if token is None:  
-        raise HTTPException(status_code=401, detail="Invalid user. Cannot perform operation!")
-    elif token[1]=="user":
-        raise HTTPException(status_code=403,detail="You do not have permission to perform this operation.")
-    validate_user_data(newuser)
-    admin_data=load_json("database/admin_data.json")
-    for admin in admin_data: 
-        if(token[0]==admin["admin_id"]):
-            a=Admin(admin["admin_id"],admin["username"],admin["password"],token[1])
-            return a.create_new_user(newuser)  
+@app.post("/admin/create_users",dependencies=[Depends(JWTBearer())],tags=["create_users"])
+def create_user_resource(newuser:User, db: db_dependency):
+    existing_user = db.query(UserSchema).filter(UserSchema.username == newuser.username).first()
+    #check for exceptions: username less than 7 characters, same uname,
+    if existing_user:
+        # raise UsernameAlreadyExists() 
+        raise HTTPException(status_code=400,detail="Username already exists!")
+    if(newuser.opening_balance<500):
+        raise HTTPException(status_code=400, detail="Minimum opening balance is 500!")
+    add_newuser(newuser,db)
+    create_bank_acc(newuser,db) 
+    return {"message":"Bank acc created successfully!"}
 
 
-#user login
 @app.post("/user/login")
-def login_user_resource(login:Login):
-    user= load_json("database/user_data.json")
-    for data in user:
-        if (login.username==data["username"] and login.password==data["password"]):
-            return {"message":"Login Success", "cust_id":data["cust_id"]}
-    raise HTTPException(status_code=401,detail="Invalid username or password!")
+async def user_login(user:Login,db:db_dependency):
+    db_user = db.query(UserSchema).filter_by(username=user.username).first()
+    if db_user is None or not check_password(user.password,str(db_user.password)): 
+        raise HTTPException(status_code=401, detail="Invalid username or password")  
+    return sign_jwt(str(db_user.cust_id))
 
 
 #user: deposit
-@app.post("/user/deposit")
+@app.post("/user/deposit",dependencies=[Depends(JWTBearer())],tags=["user_deposit"])
 def deposit_amount(a:Amount,request:Request):
-    token=validate_token(request)
-    if token is None:
-        raise HTTPException(status_code=401, detail="Invalid user. Cannot perform operation!")
-    elif token[1]=="admin":
-        raise HTTPException(status_code=403,detail="You do not have permission to perform this operation!")
-    relations=load_json("database/relation.json")
-    return next((BankAccount(relation["bank_acc_id"]).deposit(a.amount) for relation in relations 
-                if(relation["cust_id"]==token[0])),None)
-#next(iterator, default)
+    return deposit(a)
 
 
-#user: withdraw
-@app.post("/user/withdraw")
-def withdraw_amount(a:Amount,request:Request):
-    token=validate_token(request)
-    if token is None:
-        raise HTTPException(status_code=401, detail="Invalid user. Cannot perform operation!")
-    elif token[1]=="admin":
-        raise HTTPException(status_code=403,detail="You do not have permission to perform this operation!")
-    relations=load_json("database/relation.json")
-    return next((BankAccount(relation["bank_acc_id"]).withdraw(a.amount) for relation in relations 
-                if(relation["cust_id"] == token[0])),None)
+# #user: withdraw
+# @app.post("/user/withdraw")
+# def withdraw_amount(a:Amount,request:Request):
+#     token=validate_token(request)
+#     if token is None:
+#         raise HTTPException(status_code=401, detail="Invalid user. Cannot perform operation!")
+#     elif token[1]=="admin":
+#         raise HTTPException(status_code=403,detail="You do not have permission to perform this operation!")
+#     relations=load_json("database/relation.json")
+#     return next((BankAccount(relation["bank_acc_id"]).withdraw(a.amount) for relation in relations 
+#                 if(relation["cust_id"] == token[0])),None)
 
 
-#view details
-@app.get("/details")
-def view_details(request:Request):
-    token=validate_token(request)
-    if token is None:
-        raise HTTPException(status_code=401,detail="Invalid User. Cannot perform operation!")
-    user_data =  load_json("database/user_data.json")
-    acc_data=load_json("database/bank_acc.json")
-    if(len(user_data) != len(acc_data)):
-        raise HTTPException(status_code=400,detail="Mismatched no of data in user details and bank acc!")
-    merged_data = [{**d1, **d2} for d1, d2 in zip(user_data, acc_data)]     # Merge corresponding elements in a single list
-    filtered_data = [UserDetail(**item) for item in merged_data]    #a new list:filter using BaseModel
-    if(token[1]=="admin"):
-        return {"User Details":filtered_data}
-    user_detail=[data for data in merged_data if token[0]==data["cust_id"] ]
-    return {"User Details":user_detail[0]}
+# #view details
+# @app.get("/details")
+# def view_details(request:Request):
+#     token=validate_token(request)
+#     if token is None:
+#         raise HTTPException(status_code=401,detail="Invalid User. Cannot perform operation!")
+#     user_data =  load_json("database/user_data.json")
+#     acc_data=load_json("database/bank_acc.json")
+#     if(len(user_data) != len(acc_data)):
+#         raise HTTPException(status_code=400,detail="Mismatched no of data in user details and bank acc!")
+#     merged_data = [{**d1, **d2} for d1, d2 in zip(user_data, acc_data)]     # Merge corresponding elements in a single list
+#     filtered_data = [UserDetail(**item) for item in merged_data]    #a new list:filter using BaseModel
+#     if(token[1]=="admin"):
+#         return {"User Details":filtered_data}
+#     user_detail=[data for data in merged_data if token[0]==data["cust_id"] ]
+#     return {"User Details":user_detail[0]}
             
 
-#view transactions
-@app.get("/transactions")
-def view_transactions(request:Request):
-    token=validate_token(request)
-    if token is None:
-        raise HTTPException(status_code=401,detail="Invalid User. Cannot perform operation!")
-    transactions=load_json("database/transactions.json")
-    if(token[1]=="admin"):
-        transactions=[TransactionDetail(**transaction) for transaction in transactions]
-        return {"Transaction details": transactions}   
-    relations=load_json("database/relation.json")
-    bank_id=[relation["bank_acc_id"] for relation in relations if token[0]==relation["cust_id"]]
-    transactions=[transaction for transaction in transactions if bank_id[0]==transaction["bank_id"]]
-    return{"Transaction details":transactions} #consistency while displaying o/p!
+# #view transactions
+# @app.get("/transactions")
+# def view_transactions(request:Request):
+#     token=validate_token(request)
+#     if token is None:
+#         raise HTTPException(status_code=401,detail="Invalid User. Cannot perform operation!")
+#     transactions=load_json("database/transactions.json")
+#     if(token[1]=="admin"):
+#         transactions=[TransactionDetail(**transaction) for transaction in transactions]
+#         return {"Transaction details": transactions}   
+#     relations=load_json("database/relation.json")
+#     bank_id=[relation["bank_acc_id"] for relation in relations if token[0]==relation["cust_id"]]
+#     transactions=[transaction for transaction in transactions if bank_id[0]==transaction["bank_id"]]
+#     return{"Transaction details":transactions} #consistency while displaying o/p!
 
-#encryption while storing in database.
+# #encryption while storing in database.
