@@ -12,33 +12,7 @@ from database.users_db import add_newuser,create_bank_acc,deposit,withdraw,admin
 
 app=FastAPI()
 
-<<<<<<<<< Temporary merge branch 1
-def validate_user_data(newuser:User):
-    """
-    Validates the provided user data before adding a new user to the database.
-
-    Parameters:
-        newuser (User): An instance of the User class containing user details.
-
-    Raises:
-        HTTPException: If the username already exists in the database.
-        HTTPException: If the username is shorter than 7 characters.
-        HTTPException: If the opening balance is less than 500.
-
-    Returns:
-        None
-    """
-    data=load_json("database/user_data.json")
-    #Status code: 400 -> Bad Request -> Client side -> Input validation Errors
-    if (any(user for user in data if user["username"] == newuser.username)):
-        raise HTTPException(status_code=400, detail="Username already exists!")
-    if(len(newuser.username)<7):
-        raise HTTPException(status_code=400, detail="Username should contain atleast 7 characters!")
-    if(newuser.opening_balance<500):
-        raise HTTPException(status_code=400, detail="Minimum opening balance is 500!")
-=========
 init_db()
->>>>>>>>> Temporary merge branch 2
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
