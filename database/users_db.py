@@ -15,7 +15,7 @@ def add_newuser(newuser,db:Session=Depends(get_db)):
     db_user = UserSchema(cust_id=new_cust_id,username=newuser.username, password=hashed_pw,role="user")
     db.add(db_user)
     db.commit()
-    create_bank_acc(newuser,new_cust_id)
+    create_bank_acc(newuser,new_cust_id,db)
 
 def create_bank_acc(newuser:User,new_cust,db:Session=Depends(get_db)):
     new_bankid=f"ACC-{str(uuid.uuid4())[:8]}"
