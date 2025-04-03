@@ -1,0 +1,37 @@
+from datetime import datetime
+from pydantic import BaseModel
+
+class AdminViewDetails(BaseModel):
+    cust_id:str
+    username:str
+    fullname:str
+    address:str
+    contact_no:str
+    created_at:datetime
+    updated_at:datetime
+
+class UserViewDetails(BaseModel):
+    cust_id:str
+    username:str
+    bank_acc_id:str
+    fullname:str
+    address:str
+    contact_no:str
+    balance:float
+    updated_at:datetime
+
+class AdminTransactionDetails(BaseModel):
+    transaction_id:str
+    bank_acc_id:str
+    transaction_type:str
+    amount:float
+    timestamp:datetime
+
+class UserTransactionDetails(BaseModel):
+    transaction_id:str
+    bank_acc_id:str
+    transaction_type:str
+    amount:float
+    previous_balance:float
+    new_balance:float
+    timestamp:datetime
