@@ -1,0 +1,36 @@
+[project]
+name = "bank-mgmt-api"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "palpasa4", email = "palpasa04@gmail.com" }
+]
+dependencies = [
+    "sqlalchemy>=2.0.40",
+    "psycopg2-binary>=2.9.10",
+    "pyjwt>=2.10.1",
+    "bcrypt>=4.3.0",
+    "python-decouple>=3.8",
+    "fastapi[standard]>=0.115.12",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "black>=25.1.0",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bank_mgmt_api"]
+
+[tool.rye.scripts]
+server = "fastapi dev src/server.py"
