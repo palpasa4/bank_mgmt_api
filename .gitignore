@@ -1,9 +1,11 @@
-.venv/
-__pycache__
-archives/
-.vscode
-database/__pycache__
-core/__pycache__
-core/auth/__pycache__
-models/__pycache__
+# python generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# venv
+.venv
 .env
