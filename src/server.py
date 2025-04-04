@@ -5,11 +5,11 @@ from database.conn import init_db, get_db
 from models.request_models import Login, User, Amount
 from fastapi import Depends, FastAPI, HTTPException, Request, Body
 from typing import Annotated
-from core.handlers.request_handlers.response_handler import json_response
+from core.handlers.response_handler import json_response
 from core.auth.auth_handler import sign_jwt
 from core.auth.helpers import check_password, check_role
 from core.auth.auth_bearer import JWTBearer
-from core.handlers.request_handlers.users_db import (
+from database.users_db import (
     add_newuser,
     create_bank_acc,
     deposit,
