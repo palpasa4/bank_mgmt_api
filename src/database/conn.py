@@ -1,5 +1,7 @@
+from typing import Annotated
+from fastapi import Depends
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from database.tables import Base
 
 URL_DATABASE = "postgresql://postgres:password@localhost:5432/bank_sys"
@@ -20,3 +22,6 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+db_dependency = Annotated[Session, Depends(get_db)]
