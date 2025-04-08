@@ -13,9 +13,9 @@ LOG_FILE = os.path.join(LOG_DIR, "app.log")
 # Define log format
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 
-# Create a logger
+# Create a logger (Log level: INFO, DEBUG, WARNING, ERROR, CRITICAL)
 logger = logging.getLogger("fastapi-logger")
-logger.setLevel(logging.INFO)  # Log level: INFO, DEBUG, WARNING, ERROR, CRITICAL
+logger.setLevel(logging.INFO)  
 
 # Console Handler (for logs in terminal)
 console_handler = logging.StreamHandler()

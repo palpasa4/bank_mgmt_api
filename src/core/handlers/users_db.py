@@ -9,9 +9,10 @@ from models.user_response import UserViewDetails, UserTransactionDetails
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from database.conn import get_db
+from returns.result import safe,Success,Failure
 
 
-def add_newuser(newuser, db: Session = Depends(get_db)):
+def add_newuser(newuser, db):
     new_cust_id = f"CUST-{str(uuid.uuid4())[:8]}"
     hashed_pw = hash_password(newuser.password)
     db_user = UserSchema(
@@ -20,6 +21,7 @@ def add_newuser(newuser, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     create_bank_acc(newuser, new_cust_id, db)
+    return {"message":"Bank acc created successfully!"}
 
 
 def create_bank_acc(newuser: User, new_cust, db: Session = Depends(get_db)):

@@ -77,6 +77,8 @@ python-multipart==0.0.20
     # via fastapi
 pyyaml==6.0.2
     # via uvicorn
+returns==0.25.0
+    # via bank-mgmt-api
 rich==14.0.0
     # via rich-toolkit
     # via typer
@@ -97,6 +99,7 @@ typing-extensions==4.13.1
     # via fastapi
     # via pydantic
     # via pydantic-core
+    # via returns
     # via rich-toolkit
     # via sqlalchemy
     # via typer
