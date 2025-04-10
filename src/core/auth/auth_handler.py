@@ -2,10 +2,10 @@ from fastapi import HTTPException
 import time, jwt, bcrypt
 from typing import Dict, Optional
 from decouple import config
-from database.tables import AdminSchema, UserSchema
+from dbschemas.tables import AdminSchema, UserSchema
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
-from database.conn import get_db
+
 
 # for generating JWT
 JWT_SECRET = str(config("secret"))

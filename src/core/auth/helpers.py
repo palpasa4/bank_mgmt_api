@@ -1,8 +1,8 @@
 import time, jwt, bcrypt
-from database.tables import AdminSchema, UserSchema
+from dbschemas.tables import AdminSchema, UserSchema
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
-from database.conn import get_db
+from src.api.dependencies import get_db
 
 
 # For successful login

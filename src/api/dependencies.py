@@ -1,14 +1,6 @@
+from src.core.extensions.conn import Base, SessionLocal, sessionmaker, Session, engine
 from typing import Annotated
 from fastapi import Depends
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from database.tables import Base
-
-URL_DATABASE = "postgresql://postgres:password@localhost:5432/bank_sys"
-
-engine = create_engine(URL_DATABASE)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def init_db():
