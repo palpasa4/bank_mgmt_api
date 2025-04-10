@@ -9,11 +9,18 @@ def get_user(model: UserLoginModel, db):
 
 
 def add_balance(model:Amount,id:str,db):
-    db.query(BankAccount).filter(BankAccount.cust_id == id).update(
-        {
-            BankAccount.balance: BankAccount.balance + model.amount,
-            BankAccount.updated_at: datetime.now(),
-        }
-    )
-    db.commit()
-    return BankAccount
+    account = db.query(BankAccount).filter(BankAccount.cust_id == id).first()
+    if account:
+        account.balance += model.amount
+        account.updated_at = datetime.now()
+        db.commit()
+    return account
+
+
+def deduct_balance(model:Amount,id:str,db):
+    account = db.query(BankAccount).filter(BankAccount.cust_id == id).first()
+    if account:
+        account.balance -= model.amount
+        account.updated_at = datetime.now()
+        db.commit()
+    return account

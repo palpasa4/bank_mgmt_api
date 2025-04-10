@@ -16,7 +16,7 @@ def check_password(password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(password.encode(), hashed_password.encode())
 
 
-def check_role(user_id: str, db: Session = Depends(get_db)):
-    valid_admin = db.query(AdminSchema).filter(AdminSchema.admin_id == user_id).first()
-    valid_user = db.query(UserSchema).filter(UserSchema.cust_id == user_id).first()
+def check_role(id: str, db: Session = Depends(get_db)):
+    valid_admin = db.query(AdminSchema).filter(AdminSchema.admin_id == id).first()
+    valid_user = db.query(UserSchema).filter(UserSchema.cust_id == id).first()
     return "user" if not valid_admin else "admin"

@@ -20,7 +20,7 @@ async def admin_login(model: AdminLoginModel, db: db_dependency):
     admin = check_valid_admin(model, db)
     token = sign_jwt(str(admin.admin_id))
     logger.info(f"Admin login successful for username: {model.username}")
-    return {"message":"Login Successful","access_token":token}
+    return token
 
 
 # admin validation and create user
