@@ -1,11 +1,30 @@
 from datetime import datetime
 from sqlalchemy import select
 from dbschemas.tables import UserSchema, BankAccount, Transactions
-from api.entrypoint.user.models import Amount
+from api.entrypoint.user.models import Amount,UserLoginModel
 from api.entrypoint.user.responses import UserViewDetails, UserTransactionDetails
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from src.api.dependencies import get_db
+from core.auth.helpers import hash_password,check_password,check_role
+from core.logconfig import logger
+from src.modules.user.exceptions import * 
+from src.modules.user.queries import get_user
+
+
+def check_valid_user(model: UserLoginModel, db):
+    user = get_user(model, db)
+    if user is None or not check_password(
+        model.password.get_secret_value(), str(user.password)
+    ):
+        logger.warning(
+            f"Failed user login attempt: Username: {model.username} Password:{model.password}"
+        )
+        raise InvalidUserLoginException(
+            message=f"Login Failed: Invalid username or password.",
+            status_code=401
+        )
+    return user
 
 
 def deposit(a: Amount, user_id: str, db: Session = Depends(get_db)):

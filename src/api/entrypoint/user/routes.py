@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from dbschemas.tables import UserSchema
-from api.entrypoint.user.models import Login, User, Amount
+from api.entrypoint.user.models import UserLoginModel, Amount
 from core.auth.auth_handler import sign_jwt
 from core.auth.helpers import check_password, check_role
 from core.auth.auth_bearer import JWTBearer
@@ -10,19 +10,21 @@ from modules.user.handlers import (
     deposit,
     withdraw,
     user_view_details,
-    user_view_transactions,
+    user_view_transactions,\
+    check_valid_user
 )
+
 
 router = APIRouter()
 
 
 # user login
-@router.post("/user/login")
-async def user_login(model: Login, db: db_dependency):
-    db_user = db.query(UserSchema).filter_by(username=model.username).first()
-    if db_user is None or not check_password(model.password, str(db_user.password)):
-        raise HTTPException(status_code=401, detail="Invalid username or password")
-    return sign_jwt(str(db_user.cust_id))
+@router.post("/user/login",tags=["user_login"],status_code=200)
+async def user_login(model: UserLoginModel, db: db_dependency):
+    user = check_valid_user(model, db)
+    token = sign_jwt(str(user.cust_id))
+    logger.info(f"User login successful for username: {model.username}")
+    return token
 
 
 # user: deposit
