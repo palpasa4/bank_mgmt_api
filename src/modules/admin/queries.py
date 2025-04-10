@@ -23,7 +23,7 @@ def add_user(model: CreateUserModel, id: str, password: str, hashed_pw: str, db)
     return db_user
 
 
-def add_account(id,fullname,address,phone_number,opening_balance,new_cust,db):
+def add_account(id, fullname, address, phone_number, opening_balance, new_cust, db):
     db_acc = BankAccount(
         bank_acc_id=id,
         fullname=fullname,

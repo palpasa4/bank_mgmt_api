@@ -9,16 +9,13 @@ class CustomExceptionMiddleware(BaseHTTPMiddleware):
         try:
             response = await call_next(request)
             return response
-        
+
         except BaseApiException as e:
             return JSONResponse(
-                status_code=e.status_code,
-                content={"detail": e.message}
+                status_code=e.status_code, content={"detail": e.message}
             )
-        
+
         except Exception as e:
             return JSONResponse(
-                status_code=500,
-                content={"detail": "An unexpected error occurred"}
+                status_code=500, content={"detail": "An unexpected error occurred"}
             )
-        
