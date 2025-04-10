@@ -35,7 +35,7 @@ def deposit_amount(
 ):  
     check_ifuser(id,db)
     account=deposit(model,id,db)
-    logger.info(f"Amount of {model.amount} deposited by user with ID: {id}")
+    logger.info(f"Amount of {model.amount} deposited to bank account {account.bank_acc_id}")
     return {"message":f"Amount of {model.amount} successfully deposited to Bank Account {account.bank_acc_id}",
             "Deposited amount":model.amount,
             "Previous Balance":account.balance-model.amount,
@@ -45,15 +45,15 @@ def deposit_amount(
 # user: withdraw
 @router.post("/user/withdraw")
 def withdraw_amount(
-    model: Amount, db: db_dependency, user_id: str = Depends(JWTBearer())
+    model: Amount, db: db_dependency, id: str = Depends(JWTBearer())
 ):
-    if check_role(user_id, db) != "user":
-        raise HTTPException(status_code=403, detail="User not allowed!")
-    if model.amount < 500:
-        raise HTTPException(
-            status_code=400, detail="Minimum amount of withdrawal is 500!"
-        )
-    return withdraw(model, user_id, db)
+    check_ifuser(id,db)
+    account=withdraw(model,id,db)
+    logger.info(f"Amount of {model.amount} withdrawn from bank account {account.bank_acc_id}")
+    return {"message":f"Amount of {model.amount} successfully withdrawn from Bank Account {account.bank_acc_id}",
+            "Deposited amount":model.amount,
+            "Previous Balance":account.balance+model.amount,
+            "New Balance":account.balance}
 
 
 # view details
