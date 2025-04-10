@@ -15,7 +15,7 @@ class CreateUserModel(BaseModel):
     phone_number: str
     opening_balance: float
 
-    
+
 class ListUserParams(BaseModel):
     page_number: int | None = None
     page_size: int | None = None

@@ -1,4 +1,4 @@
-from api.entrypoint.user.models import Amount,UserLoginModel
+from api.entrypoint.user.models import Amount, UserLoginModel
 from dbschemas.tables import AdminSchema, UserSchema, BankAccount
 from datetime import datetime
 
@@ -8,7 +8,7 @@ def get_user(model: UserLoginModel, db):
     return user
 
 
-def add_balance(model:Amount,id:str,db):
+def add_balance(model: Amount, id: str, db):
     account = db.query(BankAccount).filter(BankAccount.cust_id == id).first()
     if account:
         account.balance += model.amount
@@ -17,7 +17,7 @@ def add_balance(model:Amount,id:str,db):
     return account
 
 
-def deduct_balance(model:Amount,id:str,db):
+def deduct_balance(model: Amount, id: str, db):
     account = db.query(BankAccount).filter(BankAccount.cust_id == id).first()
     if account:
         account.balance -= model.amount

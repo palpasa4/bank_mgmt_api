@@ -11,8 +11,8 @@ from modules.user.handlers import (
     deposit,
     withdraw,
     user_view_details,
-    user_view_transactions,\
-    check_valid_user
+    user_view_transactions,
+    check_valid_user,
 )
 
 
@@ -20,7 +20,7 @@ router = APIRouter()
 
 
 # user login
-@router.post("/user/login",tags=["user_login"],status_code=200)
+@router.post("/user/login", tags=["user_login"], status_code=200)
 async def user_login(model: UserLoginModel, db: db_dependency):
     user = check_valid_user(model, db)
     token = sign_jwt(str(user.cust_id))
@@ -29,33 +29,38 @@ async def user_login(model: UserLoginModel, db: db_dependency):
 
 
 # user: deposit
-@router.post("/user/deposit", tags=["user_deposit"],status_code=200)
-def deposit_amount(
-    model: Amount, db: db_dependency, id: str = Depends(JWTBearer())
-):  
-    check_ifuser(id,db)
-    account=deposit(model,id,db)
-    logger.info(f"Amount of {model.amount} deposited to bank account {account.bank_acc_id}")
-    return {"message":f"Amount of {model.amount} successfully deposited to Bank Account {account.bank_acc_id}",
-            "Deposited amount":model.amount,
-            "Previous Balance":account.balance-model.amount,
-            "New Balance":account.balance}
+@router.post("/user/deposit", tags=["user_deposit"], status_code=200)
+def deposit_amount(model: Amount, db: db_dependency, id: str = Depends(JWTBearer())):
+    check_ifuser(id, db)
+    account = deposit(model, id, db)
+    logger.info(
+        f"Amount of {model.amount} deposited to bank account {account.bank_acc_id}"
+    )
+    return {
+        "message": f"Amount of {model.amount} successfully deposited to Bank Account {account.bank_acc_id}",
+        "Deposited amount": model.amount,
+        "Previous Balance": account.balance - model.amount,
+        "New Balance": account.balance,
+    }
 
 
 # user: withdraw
 @router.post("/user/withdraw")
-def withdraw_amount(
-    model: Amount, db: db_dependency, id: str = Depends(JWTBearer())
-):
-    check_ifuser(id,db)
-    account=withdraw(model,id,db)
-    logger.info(f"Amount of {model.amount} withdrawn from bank account {account.bank_acc_id}")
-    return {"message":f"Amount of {model.amount} successfully withdrawn from Bank Account {account.bank_acc_id}",
-            "Deposited amount":model.amount,
-            "Previous Balance":account.balance+model.amount,
-            "New Balance":account.balance}
+def withdraw_amount(model: Amount, db: db_dependency, id: str = Depends(JWTBearer())):
+    check_ifuser(id, db)
+    account = withdraw(model, id, db)
+    logger.info(
+        f"Amount of {model.amount} withdrawn from bank account {account.bank_acc_id}"
+    )
+    return {
+        "message": f"Amount of {model.amount} successfully withdrawn from Bank Account {account.bank_acc_id}",
+        "Deposited amount": model.amount,
+        "Previous Balance": account.balance + model.amount,
+        "New Balance": account.balance,
+    }
 
 
+# remaining work
 # view details
 @router.get("/user/details")
 def view_details(db: db_dependency, user_id: str = Depends(JWTBearer())):

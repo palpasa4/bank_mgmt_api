@@ -6,11 +6,11 @@ class BaseApiException(Exception):
 
 
 class DuplicateResourceException(BaseApiException):
-    def __init__(self, message: str , status_code: int = 400):
+    def __init__(self, message: str, status_code: int = 400):
         super().__init__(message, status_code)
 
 
-class InvalidLoginException(BaseApiException): 
+class InvalidLoginException(BaseApiException):
     def __init__(self, message: str, status_code: int = 401):
         super().__init__(message, status_code)
 
