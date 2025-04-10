@@ -1,29 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
 
 
-class Login(BaseModel):
+class UserLoginModel(BaseModel):
     username: str
-    password: str
-
-
-class User(BaseModel):
-    username: str
-    password: str
-    fullname: str
-    address: str
-    contact_no: str
-    opening_balance: float
+    password: SecretStr
 
 
 class Amount(BaseModel):
     amount: float
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-# Allows ORM conversion
-class Config:
-    from_attributes = True

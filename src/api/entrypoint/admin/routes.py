@@ -32,8 +32,9 @@ def create_user_resource(
     check_duplicate_user(model.username,db)
     check_user_details(model)
     create_user(model,db)
-    logger.info(f"Bank account created successfully for user with username'{model.username}'")
-    return {"message":f"Bank account created successfully for user '{model.username}'"}
+    logger.info(f"New user added to table 'user_data' with username: {model.username}")
+    logger.info(f"Bank account created successfully to the table 'bank_acc' for '{model.username}'")
+    return {"message":f"New user '{model.username}' has been added and Bank account has been created successfully for '{model.username}'"}
 
 
 # view details

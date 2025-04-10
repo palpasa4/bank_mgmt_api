@@ -15,12 +15,12 @@ class InvalidLoginException(BaseApiException):
         super().__init__(message, status_code)
 
 
-class UnauthorizedAccess(BaseApiException):
+class UnauthorizedAccessException(BaseApiException):
     def __init__(self, message: str, status_code: int):
         super().__init__(message, status_code)
 
 
-class UsernameTooShortException(BaseApiException):
+class UserInputException(BaseApiException):
     def __init__(self, message: str, status_code: int):
         super().__init__(message, status_code)
 
