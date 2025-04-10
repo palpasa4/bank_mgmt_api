@@ -15,7 +15,7 @@ LOG_FORMAT = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 
 # Create a logger (Log level: INFO, DEBUG, WARNING, ERROR, CRITICAL)
 logger = logging.getLogger("fastapi-logger")
-logger.setLevel(logging.INFO)  
+logger.setLevel(logging.INFO)
 
 # Console Handler (for logs in terminal)
 console_handler = logging.StreamHandler()

@@ -2,6 +2,16 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
+class TokenResponse(BaseModel):
+    access_token: str
+
+
+class UserResponse(BaseModel):
+    id: str
+    password: str
+
+
+# my models
 class AdminViewDetails(BaseModel):
     cust_id: str
     username: str

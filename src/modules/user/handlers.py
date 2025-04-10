@@ -1,41 +1,16 @@
-import uuid
+import uuid, hashlib
 from datetime import datetime
 from sqlalchemy import desc, select
-from database.tables import UserSchema, BankAccount, Transactions
+from dbschemas.tables import UserSchema, BankAccount, Transactions
 from core.auth.helpers import hash_password
-from models.request_models import Login, User, Amount
-from models.admin_response import AdminViewDetails, AdminTransactionDetails
-from models.user_response import UserViewDetails, UserTransactionDetails
+from api.entrypoint.user.models import Login, Amount
+from src.api.entrypoint.admin.models import CreateUserModel
+from api.entrypoint.user.responses import UserViewDetails, UserTransactionDetails
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
-from database.conn import get_db
-from returns.result import safe,Success,Failure
-
-
-def add_newuser(newuser, db):
-    new_cust_id = f"CUST-{str(uuid.uuid4())[:8]}"
-    hashed_pw = hash_password(newuser.password)
-    db_user = UserSchema(
-        cust_id=new_cust_id, username=newuser.username, password=hashed_pw, role="user"
-    )
-    db.add(db_user)
-    db.commit()
-    create_bank_acc(newuser, new_cust_id, db)
-    return {"message":"Bank acc created successfully!"}
-
-
-def create_bank_acc(newuser: User, new_cust, db: Session = Depends(get_db)):
-    new_bankid = f"ACC-{str(uuid.uuid4())[:8]}"
-    db_acc = BankAccount(
-        bank_acc_id=new_bankid,
-        fullname=newuser.fullname,
-        address=newuser.address,
-        contact_no=newuser.contact_no,
-        balance=newuser.opening_balance,
-        cust_id=new_cust,
-    )
-    db.add(db_acc)
-    db.commit()
+from src.api.dependencies import get_db
+from returns.result import safe, Success, Failure
+from core.handlers.exceptions import DuplicateResourceException
 
 
 def deposit(a: Amount, user_id: str, db: Session = Depends(get_db)):
@@ -70,25 +45,6 @@ def withdraw(a: Amount, user_id: str, db: Session = Depends(get_db)):
     return {"message": f"Withdrawn a balance of {a.amount}"}
 
 
-def admin_view_details(db: Session = Depends(get_db)):
-    details = db.execute(
-        select(
-            UserSchema.cust_id,
-            UserSchema.username,
-            BankAccount.bank_acc_id,
-            BankAccount.fullname,
-            BankAccount.address,
-            BankAccount.contact_no,
-            BankAccount.created_at,
-            BankAccount.updated_at,
-        ).outerjoin(BankAccount, UserSchema.cust_id == BankAccount.cust_id)
-    ).fetchall()
-    if not details:
-        return {"error": "No data found."}
-    users_list = [AdminViewDetails(**dict(detail._mapping)) for detail in details]
-    return {"details": users_list}
-
-
 def user_view_details(user_id: str, db: Session = Depends(get_db)):
     details = db.execute(
         select(
@@ -107,28 +63,6 @@ def user_view_details(user_id: str, db: Session = Depends(get_db)):
     if not details:
         return {"error": "No data found."}
     return {"details": UserViewDetails(**dict(details._mapping))}
-
-
-def admin_view_transactions(db: Session = Depends(get_db)):
-    transactions = (
-        db.execute(
-            select(
-                Transactions.transaction_id,
-                Transactions.bank_acc_id,
-                Transactions.transaction_type,
-                Transactions.amount,
-                Transactions.timestamp,
-            )
-        )
-        .mappings()
-        .all()
-    )
-    if not transactions:
-        return {"error": "No transactions found."}
-    transaction_list = [
-        AdminTransactionDetails(**transaction) for transaction in transactions
-    ]
-    return {"transactions": transaction_list}
 
 
 def user_view_transactions(user_id: str, db: Session = Depends(get_db)):

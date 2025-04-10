@@ -1,10 +1,15 @@
 from fastapi import FastAPI
-from bank_mgmt_api import admin, users
-from database.conn import init_db
+from api.entrypoint.admin import routes as admin_routes
+from api.entrypoint.user import routes as user_routes
+from src.api.dependencies import init_db
+from src.core.handlers.middleware import CustomExceptionMiddleware
+
 
 app = FastAPI()
 
 init_db()
 
-app.include_router(admin.router)
-app.include_router(users.router)
+app.include_router(admin_routes.router)
+app.include_router(user_routes.router)
+
+app.add_middleware(CustomExceptionMiddleware)
