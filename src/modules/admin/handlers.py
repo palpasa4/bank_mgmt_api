@@ -1,21 +1,17 @@
 import uuid, hashlib
 from datetime import datetime
-from sqlalchemy import desc, select
+from sqlalchemy import select
 from dbschemas.tables import UserSchema, BankAccount, Transactions
-from core.auth.helpers import hash_password
+from core.auth.helpers import hash_password,check_password,check_role
 from api.entrypoint.admin.models import CreateUserModel, AdminLoginModel
 from api.entrypoint.admin.responses import AdminViewDetails, AdminTransactionDetails
-from fastapi import HTTPException, Depends
+from fastapi import Depends
 from sqlalchemy.orm import Session
 from src.api.dependencies import get_db
-from returns.result import safe, Success, Failure
 from modules.admin.queries import add_user, get_user, get_admin,add_account
-from core.auth.helpers import check_password
 from core.logconfig import logger
 from src.modules.admin.exceptions import *
 from src.core.handlers.exceptions import *
-from core.auth.helpers import check_password, check_role
-from api.entrypoint.admin.models import AdminLoginModel, CreateUserModel
 
 
 def check_valid_admin(model: AdminLoginModel, db):
@@ -41,16 +37,20 @@ def check_ifadmin(id:str,db):
 
 def check_user_details(model:CreateUserModel):
     if len(model.username) < 7:
+        #simple input validation issue
+        logger.warning("Username too short: must be at least 7 characters long")
         raise UsernameTooShortException(message="Username must be at least 7 characters long!",status_code=400)
     
     if model.opening_balance < 500:
+        # business rule violation
+        logger.error("Bank account creation failed: opening balance below minimum requirement")
         raise MinimumBalanceException(message="Minimum opening balance is 500!",status_code=400)
 
 
 def check_duplicate_user(username: str,db):
     user = get_user(username,db)
     if user:
-        logger.warning("Trying to create duplicate user")
+        logger.error("Admin attempted to create a user with an existing username")
         raise DuplicateResourceException(
             message=f"User with username {username} already exists."
         )

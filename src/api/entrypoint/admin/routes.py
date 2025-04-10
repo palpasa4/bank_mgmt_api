@@ -32,7 +32,7 @@ def create_user_resource(
     check_duplicate_user(model.username,db)
     check_user_details(model)
     create_user(model,db)
-    logger.info(f"Bank account created successfully for user '{model.username}'")
+    logger.info(f"Bank account created successfully for user with username'{model.username}'")
     return {"message":f"Bank account created successfully for user '{model.username}'"}
 
 

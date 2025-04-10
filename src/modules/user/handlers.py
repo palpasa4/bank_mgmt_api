@@ -1,16 +1,11 @@
-import uuid, hashlib
 from datetime import datetime
-from sqlalchemy import desc, select
+from sqlalchemy import select
 from dbschemas.tables import UserSchema, BankAccount, Transactions
-from core.auth.helpers import hash_password
-from api.entrypoint.user.models import Login, Amount
-from src.api.entrypoint.admin.models import CreateUserModel
+from api.entrypoint.user.models import Amount
 from api.entrypoint.user.responses import UserViewDetails, UserTransactionDetails
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from src.api.dependencies import get_db
-from returns.result import safe, Success, Failure
-from core.handlers.exceptions import DuplicateResourceException
 
 
 def deposit(a: Amount, user_id: str, db: Session = Depends(get_db)):
