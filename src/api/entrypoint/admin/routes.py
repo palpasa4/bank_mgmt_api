@@ -20,7 +20,7 @@ async def admin_login(model: AdminLoginModel, db: db_dependency):
     admin = check_valid_admin(model, db)
     token = sign_jwt(str(admin.admin_id))
     logger.info(f"Admin login successful for username: {model.username}")
-    return token
+    return {"message":"Login Successful","access_token":token}
 
 
 # admin validation and create user
@@ -37,6 +37,7 @@ def create_user_resource(
     return {"message":f"New user '{model.username}' has been added and Bank account has been created successfully for '{model.username}'"}
 
 
+#remaining work
 # view details
 @router.get("/admin/details")
 def view_details(db: db_dependency, id: str = Depends(JWTBearer())):
