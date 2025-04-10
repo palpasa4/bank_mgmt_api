@@ -6,6 +6,7 @@ from core.auth.helpers import check_password, check_role
 from core.auth.auth_bearer import JWTBearer
 from core.logconfig import logger
 from src.api.dependencies import db_dependency
+from modules.user.handlers import check_ifuser
 from modules.user.handlers import (
     deposit,
     withdraw,
@@ -28,15 +29,17 @@ async def user_login(model: UserLoginModel, db: db_dependency):
 
 
 # user: deposit
-@router.post("/user/deposit", tags=["user_deposit"])
+@router.post("/user/deposit", tags=["user_deposit"],status_code=200)
 def deposit_amount(
-    model: Amount, db: db_dependency, user_id: str = Depends(JWTBearer())
-):  # use of depends?
-    if check_role(user_id, db) != "user":
-        raise HTTPException(status_code=403, detail="User not allowed!")
-    if model.amount < 500:
-        raise HTTPException(status_code=400, detail="Minimum amount of deposit is 500!")
-    return deposit(model, user_id, db)
+    model: Amount, db: db_dependency, id: str = Depends(JWTBearer())
+):  
+    check_ifuser(id,db)
+    account=deposit(model,id,db)
+    logger.info(f"Amount of {model.amount} deposited by user with ID: {id}")
+    return {"message":f"Amount of {model.amount} successfully deposited to Bank Account {account.bank_acc_id}",
+            "Deposited amount":model.amount,
+            "Previous Balance":account.balance-model.amount,
+            "New Balance":account.balance}
 
 
 # user: withdraw

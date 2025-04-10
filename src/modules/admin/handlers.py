@@ -62,19 +62,27 @@ def check_duplicate_user(username: str,db):
 
 
 def create_user(model: CreateUserModel, db):
-    new_cust_id = f"CUST-{str(uuid.uuid4())[:8]}"
-    password = hashlib.sha256(model.username.encode()).hexdigest()[:12]
-    hashed_pw = hash_password(password)
-    add_user(model, new_cust_id, password, hashed_pw, db)
-    create_bank_acc(model, new_cust_id,db)
+    try:
+        new_cust_id = f"CUST-{str(uuid.uuid4())[:8]}"
+        password = hashlib.sha256(model.username.encode()).hexdigest()[:12]
+        hashed_pw = hash_password(password)
+        add_user(model, new_cust_id, password, hashed_pw, db)
+        create_bank_acc(model, new_cust_id,db)
+    except Exception as e:
+        logger.error(f"Database error: Unable to add user '{model.username}' to table 'user_data'.Error: {str(e)}")
+        raise DatabaseException("Database error: Unable to add user.", status_code=500)
 
 
 def create_bank_acc(model: CreateUserModel, new_cust, db):
-    new_bankid = f"ACC-{str(uuid.uuid4())[:8]}"
-    add_account(new_bankid,model.fullname,model.address,model.phone_number,model.opening_balance,new_cust,db)
-    logger.info("")
+    try:
+        new_bankid = f"ACC-{str(uuid.uuid4())[:8]}"
+        add_account(new_bankid,model.fullname,model.address,model.phone_number,model.opening_balance,new_cust,db)
+    except Exception as e:
+        logger.error(f"Database error: Unable to create bank_acc for '{model.username}'.Error: {str(e)}")
+        raise DatabaseException("Database error: Unable to create bank account.",status_code=500)
 
 
+#remaining work
 def admin_view_details(db: Session = Depends(get_db)):
     details = db.execute(
         select(

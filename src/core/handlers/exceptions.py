@@ -28,3 +28,8 @@ class UserInputException(BaseApiException):
 class MinimumBalanceException(BaseApiException):
     def __init__(self, message: str, status_code: int):
         super().__init__(message, status_code)
+
+
+class DatabaseException(BaseApiException):
+    def __init__(self, message: str, status_code: int):
+        super().__init__(message, status_code)

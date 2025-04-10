@@ -1,4 +1,3 @@
-from datetime import datetime
 from sqlalchemy import select
 from dbschemas.tables import UserSchema, BankAccount, Transactions
 from api.entrypoint.user.models import Amount,UserLoginModel
@@ -9,7 +8,12 @@ from src.api.dependencies import get_db
 from core.auth.helpers import hash_password,check_password,check_role
 from core.logconfig import logger
 from src.modules.user.exceptions import * 
-from src.modules.user.queries import get_user
+from src.modules.user.queries import get_user,add_balance
+from core.auth.helpers import check_role
+from core.logconfig import logger
+from modules.admin.exceptions import AdminPermissionDeniedException
+from src.core.handlers.exceptions import *
+from datetime import datetime
 
 
 def check_valid_user(model: UserLoginModel, db):
@@ -27,15 +31,21 @@ def check_valid_user(model: UserLoginModel, db):
     return user
 
 
-def deposit(a: Amount, user_id: str, db: Session = Depends(get_db)):
-    db.query(BankAccount).filter(BankAccount.cust_id == user_id).update(
-        {
-            BankAccount.balance: BankAccount.balance + a.amount,
-            BankAccount.updated_at: datetime.now(),
-        }
-    )
-    db.commit()
-    return {"message": f"Deposited a balance of {a.amount}"}
+def check_ifuser(id:str,db):
+    if check_role(id, db) != "user":
+        logger.error(f"Unauthorized access attempt by admin {id}")
+        raise AdminPermissionDeniedException(message="User not allowed.",status_code=401)
+
+
+def deposit(model: Amount, id: str, db: Session = Depends(get_db)):
+    if model.amount<500:
+        raise DepositBalanceException(message="Minimum amount of deposit is 500!",status_code=400)
+    try:
+        account=add_balance(model,id,db)
+        return account
+    except Exception as e:
+        logger.error(f"Database error: Unable to deposit amount for user with ID: {id}")
+        raise DatabaseException(message="Database error: Unable to deposit money.",status_code=500)
 
 
 def withdraw(a: Amount, user_id: str, db: Session = Depends(get_db)):
