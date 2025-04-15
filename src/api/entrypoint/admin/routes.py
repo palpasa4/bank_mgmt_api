@@ -10,6 +10,7 @@ from src.api.entrypoint.admin.responses import AdminViewDetails
 from src.modules.admin.handlers import (
     admin_view_details,
     admin_view_transactions,
+    admin_view_specific_detail,
     create_user,
     check_valid_admin,
     check_duplicate_user,

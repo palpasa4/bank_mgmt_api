@@ -4,10 +4,6 @@ from typing import Dict, Optional
 from src.config.settings import  DefaultSettings
 
 
-
-
-
-
 def token_response(token: str):
     return {"access_token": token}
 

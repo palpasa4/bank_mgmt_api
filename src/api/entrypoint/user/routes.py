@@ -9,6 +9,7 @@ from src.core.logconfig import logger
 from src.api.dependencies import AnnotatedDatabaseSession
 from src.modules.user.handlers import check_ifuser
 from src.api.entrypoint.user.responses import UserTransactionDetails
+from src.config.settings import DefaultSettings
 from src.modules.user.handlers import (
     deposit,
     withdraw,
@@ -23,9 +24,9 @@ router = APIRouter(prefix="/user", tags=["user"])
 
 # user login
 @router.post("/login/", tags=["user_login"], status_code=200)
-async def user_login(model: UserLoginModel, db: AnnotatedDatabaseSession):
+async def user_login(model: UserLoginModel,settings: DefaultSettings, db: AnnotatedDatabaseSession):
     user = check_valid_user(model, db)
-    token = sign_jwt(str(user.cust_id))
+    token = sign_jwt(str(user.cust_id),settings)
     logger.info(f"User login successful for username: {model.username}")
     return token
 

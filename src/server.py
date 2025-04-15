@@ -9,7 +9,7 @@ from src.config.settings import AppSettings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.settings = AppSettings() #type:ignore
+    app.state.settings = AppSettings() 
     print(app.state.settings)
     print("Starting Server")
     init_db(app.state.settings.database)
@@ -19,7 +19,6 @@ async def lifespan(app: FastAPI):
 
 def init_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan)
-
 
     # include routers
     app.include_router(admin_routes.router)
