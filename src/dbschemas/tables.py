@@ -4,7 +4,7 @@ from psycopg2.errors import UniqueViolation
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
-from src.core.extensions.conn import Base
+from src.config.database import Base
 
 
 class AdminSchema(Base):

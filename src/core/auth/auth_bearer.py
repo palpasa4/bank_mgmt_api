@@ -1,7 +1,10 @@
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from httpx import request
 import jwt
-from .auth_handler import decode_jwt, JWT_ALGORITHM, JWT_SECRET
+
+from src.config.settings import DefaultSettings
+from .auth_handler import decode_jwt
 from typing import Optional
 
 
@@ -13,6 +16,8 @@ class JWTBearer(HTTPBearer):
         credentials: Optional[HTTPAuthorizationCredentials] = await super(
             JWTBearer, self
         ).__call__(request)
+
+        settings: DefaultSettings = request.app.state.settings.default
         if credentials:
             if not credentials.scheme == "Bearer":
                 raise HTTPException(
@@ -23,7 +28,7 @@ class JWTBearer(HTTPBearer):
                     status_code=403, detail="Invalid token or expired token."
                 )
             token = credentials.credentials
-            decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            decoded_token = jwt.decode(token, settings.secret.get_secret_value(), algorithms=[settings.algorithm])
             username = decoded_token.get("user_id")
             return username
         else:
@@ -33,7 +38,7 @@ class JWTBearer(HTTPBearer):
         isTokenValid: bool = False
 
         try:
-            payload = decode_jwt(jwtoken)
+            payload = decode_jwt(jwtoken, request.app.state.settings.default)
         except:
             payload = None
         if payload:

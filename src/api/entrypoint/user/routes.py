@@ -1,13 +1,15 @@
+from src.api.entrypoint.user.responses import UserViewDetails
 from fastapi import APIRouter, Depends, HTTPException
-from dbschemas.tables import UserSchema
-from api.entrypoint.user.models import UserLoginModel, Amount
-from core.auth.auth_handler import sign_jwt
-from core.auth.helpers import check_password, check_role
-from core.auth.auth_bearer import JWTBearer
-from core.logconfig import logger
-from src.api.dependencies import db_dependency
-from modules.user.handlers import check_ifuser
-from modules.user.handlers import (
+from src.dbschemas.tables import UserSchema
+from src.api.entrypoint.user.models import UserLoginModel, Amount
+from src.core.auth.auth_handler import sign_jwt
+from src.core.auth.helpers import check_password, check_role
+from src.core.auth.auth_bearer import JWTBearer
+from src.core.logconfig import logger
+from src.api.dependencies import AnnotatedDatabaseSession
+from src.modules.user.handlers import check_ifuser
+from src.api.entrypoint.user.responses import UserTransactionDetails
+from src.modules.user.handlers import (
     deposit,
     withdraw,
     user_view_details,
@@ -16,12 +18,12 @@ from modules.user.handlers import (
 )
 
 
-router = APIRouter()
+router = APIRouter(prefix="/user", tags=["user"])
 
 
 # user login
-@router.post("/user/login", tags=["user_login"], status_code=200)
-async def user_login(model: UserLoginModel, db: db_dependency):
+@router.post("/login/", tags=["user_login"], status_code=200)
+async def user_login(model: UserLoginModel, db: AnnotatedDatabaseSession):
     user = check_valid_user(model, db)
     token = sign_jwt(str(user.cust_id))
     logger.info(f"User login successful for username: {model.username}")
@@ -29,8 +31,8 @@ async def user_login(model: UserLoginModel, db: db_dependency):
 
 
 # user: deposit
-@router.post("/user/deposit", tags=["user_deposit"], status_code=200)
-def deposit_amount(model: Amount, db: db_dependency, id: str = Depends(JWTBearer())):
+@router.post("/deposit/", tags=["user_deposit"], status_code=200)
+def deposit_amount(model: Amount, db: AnnotatedDatabaseSession, id: str = Depends(JWTBearer())):
     check_ifuser(id, db)
     account = deposit(model, id, db)
     logger.info(
@@ -45,8 +47,8 @@ def deposit_amount(model: Amount, db: db_dependency, id: str = Depends(JWTBearer
 
 
 # user: withdraw
-@router.post("/user/withdraw")
-def withdraw_amount(model: Amount, db: db_dependency, id: str = Depends(JWTBearer())):
+@router.post("/withdraw/")
+def withdraw_amount(model: Amount, db: AnnotatedDatabaseSession, id: str = Depends(JWTBearer())):
     check_ifuser(id, db)
     account = withdraw(model, id, db)
     logger.info(
@@ -60,18 +62,22 @@ def withdraw_amount(model: Amount, db: db_dependency, id: str = Depends(JWTBeare
     }
 
 
-# remaining work
 # view details
-@router.get("/user/details")
-def view_details(db: db_dependency, user_id: str = Depends(JWTBearer())):
-    if check_role(user_id, db) != "user":
-        raise HTTPException(status_code=403, detail="User not allowed!")
-    return user_view_details(user_id, db)
+@router.get("/details/")
+def view_details(db: AnnotatedDatabaseSession, id: str = Depends(JWTBearer())):
+    check_ifuser(id, db)
+    details = user_view_details(id, db)
+    return {"details": UserViewDetails(**dict(details._mapping))}
 
 
 # view transactions
-@router.get("/user/transactions")
-def view_transactions(db: db_dependency, user_id: str = Depends(JWTBearer())):
-    if check_role(user_id, db) != "user":
-        raise HTTPException(status_code=403, detail="User not allowed!")
-    return user_view_transactions(user_id, db)
+@router.get("/transactions/")
+def view_transactions(db: AnnotatedDatabaseSession, id: str = Depends(JWTBearer())):
+    check_ifuser(id, db)
+    transactions = user_view_transactions(id, db)
+    return {
+        "transactions": [
+            UserTransactionDetails(**transaction[0].__dict__)
+            for transaction in transactions
+        ]
+    }

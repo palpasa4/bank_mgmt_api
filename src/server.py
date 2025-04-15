@@ -1,15 +1,34 @@
+from contextlib import asynccontextmanager
+from src.config.database import init_db
 from fastapi import FastAPI
-from api.entrypoint.admin import routes as admin_routes
-from api.entrypoint.user import routes as user_routes
-from src.api.dependencies import init_db
-from src.core.handlers.middleware import CustomExceptionMiddleware
+from src.api.entrypoint.admin import routes as admin_routes
+from src.api.entrypoint.user import routes as user_routes
+from src.core.middleware import CustomExceptionMiddleware
+from src.config.settings import AppSettings
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.settings = AppSettings() #type:ignore
+    print(app.state.settings)
+    print("Starting Server")
+    init_db(app.state.settings.database)
+    yield
+    print("Stopping Server")
 
-init_db()
 
-app.include_router(admin_routes.router)
-app.include_router(user_routes.router)
+def init_app() -> FastAPI:
+    app = FastAPI(lifespan=lifespan)
 
-app.add_middleware(CustomExceptionMiddleware)
+
+    # include routers
+    app.include_router(admin_routes.router)
+    # app.include_router(user_routes.router)
+
+    # user middlewares
+    app.add_middleware(CustomExceptionMiddleware)
+
+    return app
+
+
+app = init_app()

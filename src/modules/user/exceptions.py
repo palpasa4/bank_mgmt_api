@@ -1,17 +1,13 @@
-from src.core.handlers.exceptions import *
+from src.core.exceptions import *
 
 
-class InvalidUserLoginException(InvalidLoginException):
-    pass
+class InvalidUserLoginException(AuthException): ...
 
 
-class UserPermissionDeniedException(UnauthorizedAccessException):
-    pass
+class UserPermissionDeniedException(PermissionDeniedException): ...
 
 
-class WithdrawBalanceException(MinimumBalanceException):
-    pass
+class DetailNotFoundException(ResourceNotFoundException): ...
 
 
-class DepositBalanceException(MinimumBalanceException):
-    pass
+class TransactionsNotFoundException(ResourceNotFoundException): ...

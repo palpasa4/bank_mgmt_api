@@ -1,19 +1,13 @@
-from src.core.extensions.conn import Base, SessionLocal, sessionmaker, Session, engine
+from h11 import Request
+from src.config.database import get_db_session
 from typing import Annotated
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
+from src.config.settings import DefaultSettings
 
-def init_db():
-    Base.metadata.create_all(bind=engine)
+def get_default_settings(request: Request)->DefaultSettings:
+    return request.app.state.settings.default
 
-
-# connection to db: dependency to get db session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-db_dependency = Annotated[Session, Depends(get_db)]
+AnnotatedDatabaseSession = Annotated[Session, Depends(get_db_session)]
+AnotatedDefaultSettings = Annotated[DefaultSettings, Depends(get_default_settings)]

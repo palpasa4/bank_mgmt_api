@@ -1,17 +1,25 @@
+import stat
 import uuid, hashlib
 from sqlalchemy import select
-from dbschemas.tables import UserSchema, BankAccount, Transactions
-from core.auth.helpers import hash_password, check_password, check_role
-from api.entrypoint.admin.models import CreateUserModel, AdminLoginModel
-from api.entrypoint.admin.responses import AdminViewDetails, AdminTransactionDetails
+from src.dbschemas.tables import UserSchema, BankAccount, Transactions
+from src.core.auth.helpers import hash_password, check_password, check_role
+from src.api.entrypoint.admin.models import CreateUserModel, AdminLoginModel
+from src.api.entrypoint.admin.responses import AdminViewDetails, AdminTransactionDetails
 from fastapi import Depends
 from sqlalchemy.orm import Session
-from src.api.dependencies import get_db
-from modules.admin.queries import add_user, get_user, get_admin, add_account
-from core.logconfig import logger
+from src.api.dependencies import get_db_session
+from src.modules.admin.queries import (
+    add_user,
+    get_user,
+    get_admin,
+    add_account,
+    get_details,
+    get_transactions,
+)
+from src.core.logconfig import logger
 from src.modules.admin.exceptions import *
 from src.modules.user.exceptions import *
-from src.core.handlers.exceptions import *
+from src.core.exceptions import *
 
 
 def check_valid_admin(model: AdminLoginModel, db):
@@ -40,13 +48,13 @@ def check_user_details(model: CreateUserModel):
     if len(model.username) < 7:
         # simple input validation issue
         logger.warning("Username too short: must be at least 7 characters long")
-        raise UsernameTooShortException(
+        raise ValidationException(
             message="Username must be at least 7 characters long!", status_code=400
         )
 
     if len(model.username) > 20:
         logger.warning("Username too long: cannot be more than 20 characters!")
-        raise UsernameTooLongException(
+        raise ValidationException(
             message="Username cannot include more than 20 characters!", status_code=400
         )
 
@@ -55,7 +63,7 @@ def check_user_details(model: CreateUserModel):
         logger.error(
             "Bank account creation failed: opening balance below minimum requirement"
         )
-        raise OpeningBalanceException(
+        raise ValidationException(
             message="Minimum opening balance is 500!", status_code=400
         )
 
@@ -65,7 +73,7 @@ def check_duplicate_user(username: str, db):
     if user:
         logger.error("Admin attempted to create a user with an existing username")
         raise DuplicateUserException(
-            message=f"User with username {username} already exists."
+            message=f"User with username {username} already exists.", status_code=409
         )
 
 
@@ -105,42 +113,23 @@ def create_bank_acc(model: CreateUserModel, new_cust, db):
 
 
 # remaining work
-def admin_view_details(db: Session = Depends(get_db)):
-    details = db.execute(
-        select(
-            UserSchema.cust_id,
-            UserSchema.username,
-            BankAccount.bank_acc_id,
-            BankAccount.fullname,
-            BankAccount.address,
-            BankAccount.contact_no,
-            BankAccount.created_at,
-            BankAccount.updated_at,
-        ).outerjoin(BankAccount, UserSchema.cust_id == BankAccount.cust_id)
-    ).fetchall()
-    if not details:
-        return {"error": "No data found."}
-    users_list = [AdminViewDetails(**dict(detail._mapping)) for detail in details]
-    return {"details": users_list}
+def admin_view_details(db: Session = Depends(get_db_session)):
+    users_list = get_details(id, db)
+    if not users_list:
+        logger.error("Database Exception: No details found!")
+        raise DetailNotFoundException(message="No details found!", status_code=404)
+    return users_list
 
 
-def admin_view_transactions(db: Session = Depends(get_db)):
-    transactions = (
-        db.execute(
-            select(
-                Transactions.transaction_id,
-                Transactions.bank_acc_id,
-                Transactions.transaction_type,
-                Transactions.amount,
-                Transactions.timestamp,
-            )
+def admin_view_specific_detail(db: Session = Depends(get_db_session)):
+    pass
+
+
+def admin_view_transactions(db: Session = Depends(get_db_session)):
+    transaction_list = get_transactions(id, db)
+    if not transaction_list:
+        logger.error("Database Error: No transactions found. ")
+        raise TransactionsNotFoundException(
+            message="No transactions found!", status_code=404
         )
-        .mappings()
-        .all()
-    )
-    if not transactions:
-        return {"error": "No transactions found."}
-    transaction_list = [
-        AdminTransactionDetails(**transaction) for transaction in transactions
-    ]
-    return {"transactions": transaction_list}
+    return transaction_list
