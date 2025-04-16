@@ -1,19 +1,28 @@
+from email import message
 from sqlalchemy import select
-from dbschemas.tables import UserSchema, BankAccount, Transactions
+from websockets import StatusLike
+from src.dbschemas.tables import UserSchema, BankAccount, Transactions
 from src.api.entrypoint.user.models import *
 from src.api.entrypoint.user.responses import *
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
-from src.api.dependencies import get_db
-from core.auth.helpers import hash_password, check_password, check_role
-from core.logconfig import logger
-from src.modules.user.queries import get_user, add_balance, deduct_balance
+from src.api.dependencies import get_db_session
+from src.core.auth.helpers import hash_password, check_password, check_role
+from src.api.dependencies import AnnotatedDatabaseSession
+from src.core.logconfig import logger
+from src.modules.user.queries import (
+    get_user,
+    add_balance,
+    deduct_balance,
+    get_detail,
+    get_transactions,
+)
 from src.modules.admin.exceptions import *
-from src.core.handlers.exceptions import *
+from src.core.exceptions import *
 from src.modules.user.exceptions import *
 
 
-def check_valid_user(model: UserLoginModel, db):
+def check_valid_user(model: UserLoginModel, db:AnnotatedDatabaseSession):
     user = get_user(model, db)
     if user is None or not check_password(
         model.password.get_secret_value(), str(user.password)
@@ -27,7 +36,7 @@ def check_valid_user(model: UserLoginModel, db):
     return user
 
 
-def check_ifuser(id: str, db):
+def check_ifuser(id: str, db:AnnotatedDatabaseSession):
     if check_role(id, db) != "user":
         logger.error(f"Unauthorized access attempt by admin {id}")
         raise AdminPermissionDeniedException(
@@ -35,12 +44,12 @@ def check_ifuser(id: str, db):
         )
 
 
-def deposit(model: Amount, id: str, db):
+def deposit(model: Amount, id: str, db:AnnotatedDatabaseSession):
     if model.amount < 500:
         logger.error(
             "DepositBalanceException: Trying to deposit less than minimum amount!"
         )
-        raise DepositBalanceException(
+        raise ValidationException(
             message="Minimum amount of deposit is 500!", status_code=400
         )
     try:
@@ -53,13 +62,13 @@ def deposit(model: Amount, id: str, db):
         )
 
 
-def withdraw(model: Amount, id: str, db):
+def withdraw(model: Amount, id: str, db:AnnotatedDatabaseSession):
     bank_acc = db.query(BankAccount).filter(BankAccount.cust_id == id).first()
     if model.amount < 500:
         logger.error(
             "WithdrawBalanceException: Trying to withdraw less than minimum amount!"
         )
-        raise DepositBalanceException(
+        raise ValidationException(
             message="Minimum amount of withdrawal is 500!", status_code=400
         )
     if (
@@ -70,7 +79,7 @@ def withdraw(model: Amount, id: str, db):
         logger.error(
             "WithdrawBalanceException: Trying to withdraw more than existing balance!"
         )
-        raise WithdrawBalanceException(
+        raise ValidationException(
             message=f"Withdrawal exceeds existing balance. Minimum existing balance should be NPR 500 Existing balance is : {bank_acc.balance}",
             status_code=400,
         )
@@ -86,39 +95,23 @@ def withdraw(model: Amount, id: str, db):
         )
 
 
-# remaining work
-def user_view_details(user_id: str, db: Session = Depends(get_db)):
-    details = db.execute(
-        select(
-            UserSchema.cust_id,
-            UserSchema.username,
-            BankAccount.bank_acc_id,
-            BankAccount.fullname,
-            BankAccount.address,
-            BankAccount.contact_no,
-            BankAccount.balance,
-            BankAccount.updated_at,
-        )
-        .outerjoin(BankAccount, UserSchema.cust_id == BankAccount.cust_id)
-        .where(UserSchema.cust_id == user_id)
-    ).fetchone()
+def user_view_details(id: str, db:AnnotatedDatabaseSession):
+    details = get_detail(id, db)
     if not details:
-        return {"error": "No data found."}
-    return {"details": UserViewDetails(**dict(details._mapping))}
+        logger.error(
+            f"DatabaseException raised: Detail Not Found for user with ID: {id}."
+        )
+        raise DetailNotFoundException(message="Detail Not found.", status_code=404)
+    return details
 
 
-def user_view_transactions(user_id: str, db: Session = Depends(get_db)):
-    bank_acc_id = db.execute(
-        select(BankAccount.bank_acc_id).where(BankAccount.cust_id == user_id)
-    ).scalar()
-    transactions = db.execute(
-        select(Transactions).where(Transactions.bank_acc_id == bank_acc_id)
-    ).fetchall()
+def user_view_transactions(id: str, db:AnnotatedDatabaseSession):
+    transactions = get_transactions(id, db)
     if not transactions:
-        return {"error": "No transactions found"}
-    return {
-        "transactions": [
-            UserTransactionDetails(**transaction[0].__dict__)
-            for transaction in transactions
-        ]
-    }
+        logger.error(
+            f"DatabaseException: No transactions found for user with ID: {id}."
+        )
+        raise TransactionsNotFoundException(
+            message="No transactions found.", status_code=404
+        )
+    return transactions

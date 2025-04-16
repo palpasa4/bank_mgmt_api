@@ -1,25 +1,10 @@
-from src.core.handlers.exceptions import *
+from src.core.exceptions import *
 
 
-class DuplicateUserException(DuplicateResourceException):
-    pass
+class DuplicateUserException(DuplicateResourceException): ...
 
 
-class InvalidAdminLoginException(InvalidLoginException):
-    pass
+class InvalidAdminLoginException(AuthException): ...
 
 
-class AdminPermissionDeniedException(UnauthorizedAccessException):
-    pass
-
-
-class UsernameTooShortException(UserInputException):
-    pass
-
-
-class UsernameTooLongException(UserInputException):
-    pass
-
-
-class OpeningBalanceException(MinimumBalanceException):
-    pass
+class AdminPermissionDeniedException(PermissionDeniedException): ...

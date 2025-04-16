@@ -63,8 +63,11 @@ psycopg2-binary==2.9.10
     # via bank-mgmt-api
 pydantic==2.11.2
     # via fastapi
+    # via pydantic-settings
 pydantic-core==2.33.1
     # via pydantic
+pydantic-settings==2.8.1
+    # via bank-mgmt-api
 pygments==2.19.1
     # via rich
 pyjwt==2.10.1
@@ -72,13 +75,12 @@ pyjwt==2.10.1
 python-decouple==3.8
     # via bank-mgmt-api
 python-dotenv==1.1.0
+    # via pydantic-settings
     # via uvicorn
 python-multipart==0.0.20
     # via fastapi
 pyyaml==6.0.2
     # via uvicorn
-returns==0.25.0
-    # via bank-mgmt-api
 rich==14.0.0
     # via rich-toolkit
     # via typer
@@ -99,7 +101,6 @@ typing-extensions==4.13.1
     # via fastapi
     # via pydantic
     # via pydantic-core
-    # via returns
     # via rich-toolkit
     # via sqlalchemy
     # via typer
