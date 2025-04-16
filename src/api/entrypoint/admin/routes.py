@@ -5,7 +5,7 @@ from src.api.entrypoint.admin.models import AdminLoginModel, CreateUserModel
 from src.core.auth.auth_handler import sign_jwt
 from src.core.auth.auth_bearer import JWTBearer
 from src.core.logconfig import logger
-from src.api.dependencies import AnnotatedDatabaseSession, AnotatedDefaultSettings
+from src.api.dependencies import AnnotatedDatabaseSession, AnnotatedDefaultSettings
 from src.api.entrypoint.admin.responses import AdminViewDetails
 from src.modules.admin.handlers import (
     admin_view_details,
@@ -26,9 +26,9 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 
 # admin login
 @router.post("/login/", tags=["admin_login"], status_code=200)
-async def admin_login(request: Request, model: AdminLoginModel, db: AnnotatedDatabaseSession):
+async def admin_login(model: AdminLoginModel, db: AnnotatedDatabaseSession,settings:AnnotatedDefaultSettings):
     admin = check_valid_admin(model, db)
-    token = sign_jwt(str(admin.admin_id), request.app.state.settings.default)
+    token = sign_jwt(str(admin.admin_id), settings)
     logger.info(f"Admin login successful for username: {model.username}")
     return token
 

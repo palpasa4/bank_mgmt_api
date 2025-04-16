@@ -6,7 +6,7 @@ from src.core.auth.auth_handler import sign_jwt
 from src.core.auth.helpers import check_password, check_role
 from src.core.auth.auth_bearer import JWTBearer
 from src.core.logconfig import logger
-from src.api.dependencies import AnnotatedDatabaseSession
+from src.api.dependencies import AnnotatedDatabaseSession,AnnotatedDefaultSettings
 from src.modules.user.handlers import check_ifuser
 from src.api.entrypoint.user.responses import UserTransactionDetails
 from src.config.settings import DefaultSettings
@@ -24,7 +24,7 @@ router = APIRouter(prefix="/user", tags=["user"])
 
 # user login
 @router.post("/login/", tags=["user_login"], status_code=200)
-async def user_login(model: UserLoginModel,settings: DefaultSettings, db: AnnotatedDatabaseSession):
+async def user_login(model: UserLoginModel,settings: AnnotatedDefaultSettings, db: AnnotatedDatabaseSession):
     user = check_valid_user(model, db)
     token = sign_jwt(str(user.cust_id),settings)
     logger.info(f"User login successful for username: {model.username}")
@@ -36,6 +36,7 @@ async def user_login(model: UserLoginModel,settings: DefaultSettings, db: Annota
 def deposit_amount(model: Amount, db: AnnotatedDatabaseSession, id: str = Depends(JWTBearer())):
     check_ifuser(id, db)
     account = deposit(model, id, db)
+    breakpoint()
     logger.info(
         f"Amount of {model.amount} deposited to bank account {account.bank_acc_id}"
     )

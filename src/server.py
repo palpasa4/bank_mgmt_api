@@ -22,7 +22,7 @@ def init_app() -> FastAPI:
 
     # include routers
     app.include_router(admin_routes.router)
-    # app.include_router(user_routes.router)
+    app.include_router(user_routes.router)
 
     # user middlewares
     app.add_middleware(CustomExceptionMiddleware)

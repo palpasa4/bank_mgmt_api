@@ -19,7 +19,7 @@ def sign_jwt(user_id: str, settings: DefaultSettings) -> Dict[str, str]:
 
 
 # checks the validity of token: expiry time
-def decode_jwt(token: str, settings:DefaultSettings) -> Optional[Dict[str, str]]:
+def decode_jwt(token: str, settings:DefaultSettings)  -> Optional[Dict[str, str]]:
     try:
         decoded_token = jwt.decode(token, settings.secret.get_secret_value(), algorithms=[settings.algorithm])
         return decoded_token if decoded_token["expires"] >= time.time() else None

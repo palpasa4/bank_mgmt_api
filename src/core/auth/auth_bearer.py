@@ -2,7 +2,7 @@ from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from httpx import request
 import jwt
-
+from src.core.logconfig import logger
 from src.config.settings import DefaultSettings
 from .auth_handler import decode_jwt
 from typing import Optional
@@ -20,10 +20,12 @@ class JWTBearer(HTTPBearer):
         settings: DefaultSettings = request.app.state.settings.default
         if credentials:
             if not credentials.scheme == "Bearer":
+                logger.info("Authentication failed: Invalid authentication scheme (HTTP 403).")
                 raise HTTPException(
                     status_code=403, detail="Invalid authentication scheme."
                 )
-            if not self.verify_jwt(credentials.credentials):
+            if not self.verify_jwt(credentials.credentials,settings):
+                logger.info("Authentication failed: Invalid or expired token (HTTP 403).")
                 raise HTTPException(
                     status_code=403, detail="Invalid token or expired token."
                 )
@@ -32,13 +34,16 @@ class JWTBearer(HTTPBearer):
             username = decoded_token.get("user_id")
             return username
         else:
+            logger.info("Authentication failed: Invalid authorization code (HTTP 403).")
             raise HTTPException(status_code=403, detail="Invalid authorization code.")
 
-    def verify_jwt(self, jwtoken: str) -> bool:
+
+    def verify_jwt(self, jwtoken: str,settings:DefaultSettings) -> bool:
+        # breakpoint()
         isTokenValid: bool = False
 
         try:
-            payload = decode_jwt(jwtoken, request.app.state.settings.default)
+            payload = decode_jwt(jwtoken, settings)
         except:
             payload = None
         if payload:

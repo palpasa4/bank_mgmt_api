@@ -8,6 +8,7 @@ from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from src.api.dependencies import get_db_session
 from src.core.auth.helpers import hash_password, check_password, check_role
+from src.api.dependencies import AnnotatedDatabaseSession
 from src.core.logconfig import logger
 from src.modules.user.queries import (
     get_user,
@@ -21,7 +22,7 @@ from src.core.exceptions import *
 from src.modules.user.exceptions import *
 
 
-def check_valid_user(model: UserLoginModel, db):
+def check_valid_user(model: UserLoginModel, db:AnnotatedDatabaseSession):
     user = get_user(model, db)
     if user is None or not check_password(
         model.password.get_secret_value(), str(user.password)
@@ -35,7 +36,7 @@ def check_valid_user(model: UserLoginModel, db):
     return user
 
 
-def check_ifuser(id: str, db):
+def check_ifuser(id: str, db:AnnotatedDatabaseSession):
     if check_role(id, db) != "user":
         logger.error(f"Unauthorized access attempt by admin {id}")
         raise AdminPermissionDeniedException(
@@ -43,7 +44,7 @@ def check_ifuser(id: str, db):
         )
 
 
-def deposit(model: Amount, id: str, db):
+def deposit(model: Amount, id: str, db:AnnotatedDatabaseSession):
     if model.amount < 500:
         logger.error(
             "DepositBalanceException: Trying to deposit less than minimum amount!"
@@ -61,7 +62,7 @@ def deposit(model: Amount, id: str, db):
         )
 
 
-def withdraw(model: Amount, id: str, db):
+def withdraw(model: Amount, id: str, db:AnnotatedDatabaseSession):
     bank_acc = db.query(BankAccount).filter(BankAccount.cust_id == id).first()
     if model.amount < 500:
         logger.error(
@@ -94,7 +95,7 @@ def withdraw(model: Amount, id: str, db):
         )
 
 
-def user_view_details(id: str, db):
+def user_view_details(id: str, db:AnnotatedDatabaseSession):
     details = get_detail(id, db)
     if not details:
         logger.error(
@@ -104,7 +105,7 @@ def user_view_details(id: str, db):
     return details
 
 
-def user_view_transactions(id: str, db):
+def user_view_transactions(id: str, db:AnnotatedDatabaseSession):
     transactions = get_transactions(id, db)
     if not transactions:
         logger.error(

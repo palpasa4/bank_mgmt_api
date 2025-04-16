@@ -2,7 +2,7 @@
 # from dotenv import load_dotenv
 # import os
 from ast import main
-from pydantic import BaseModel,  SecretStr
+from pydantic import BaseModel, Field,  SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -20,8 +20,8 @@ class DefaultSettings(BaseModel):
 
 
 class AppSettings(BaseSettings):
-    database: DatabaseSettings
-    default: DefaultSettings
+    database: DatabaseSettings # = Field(validation_alias="database")
+    default: DefaultSettings # = Field(validation_alias="default")
 
 
     model_config = SettingsConfigDict(
