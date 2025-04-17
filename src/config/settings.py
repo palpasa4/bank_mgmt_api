@@ -2,15 +2,15 @@
 # from dotenv import load_dotenv
 # import os
 from ast import main
-from pydantic import BaseModel, Field,  SecretStr
+from pydantic import BaseModel, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DatabaseSettings(BaseModel):
-    host: str 
+    host: str
     port: int
     name: str
-    user:str
+    user: str
     password: SecretStr
 
 
@@ -20,11 +20,7 @@ class DefaultSettings(BaseModel):
 
 
 class AppSettings(BaseSettings):
-    database: DatabaseSettings # = Field(validation_alias="database")
-    default: DefaultSettings # = Field(validation_alias="default")
+    database: DatabaseSettings  # = Field(validation_alias="database")
+    default: DefaultSettings  # = Field(validation_alias="default")
 
-
-    model_config = SettingsConfigDict(
-        env_file='.env',
-        env_file_encoding='utf-8'
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")

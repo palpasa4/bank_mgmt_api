@@ -6,7 +6,7 @@ from datetime import datetime
 from sqlalchemy import select
 
 
-def get_user(model: UserLoginModel, db:AnnotatedDatabaseSession):
+def get_user(model: UserLoginModel, db: AnnotatedDatabaseSession):
     user = db_admin = db.query(UserSchema).filter_by(username=model.username).first()
     return user
 

@@ -22,7 +22,7 @@ from src.core.exceptions import *
 from src.modules.user.exceptions import *
 
 
-def check_valid_user(model: UserLoginModel, db:AnnotatedDatabaseSession):
+def check_valid_user(model: UserLoginModel, db: AnnotatedDatabaseSession):
     user = get_user(model, db)
     if user is None or not check_password(
         model.password.get_secret_value(), str(user.password)
@@ -36,7 +36,7 @@ def check_valid_user(model: UserLoginModel, db:AnnotatedDatabaseSession):
     return user
 
 
-def check_ifuser(id: str, db:AnnotatedDatabaseSession):
+def check_ifuser(id: str, db: AnnotatedDatabaseSession):
     if check_role(id, db) != "user":
         logger.error(f"Unauthorized access attempt by admin {id}")
         raise AdminPermissionDeniedException(
@@ -44,7 +44,7 @@ def check_ifuser(id: str, db:AnnotatedDatabaseSession):
         )
 
 
-def deposit(model: Amount, id: str, db:AnnotatedDatabaseSession):
+def deposit(model: Amount, id: str, db: AnnotatedDatabaseSession):
     if model.amount < 500:
         logger.error(
             "DepositBalanceException: Trying to deposit less than minimum amount!"
@@ -62,7 +62,7 @@ def deposit(model: Amount, id: str, db:AnnotatedDatabaseSession):
         )
 
 
-def withdraw(model: Amount, id: str, db:AnnotatedDatabaseSession):
+def withdraw(model: Amount, id: str, db: AnnotatedDatabaseSession):
     bank_acc = db.query(BankAccount).filter(BankAccount.cust_id == id).first()
     if model.amount < 500:
         logger.error(
@@ -95,7 +95,7 @@ def withdraw(model: Amount, id: str, db:AnnotatedDatabaseSession):
         )
 
 
-def user_view_details(id: str, db:AnnotatedDatabaseSession):
+def user_view_details(id: str, db: AnnotatedDatabaseSession):
     details = get_detail(id, db)
     if not details:
         logger.error(
@@ -105,7 +105,7 @@ def user_view_details(id: str, db:AnnotatedDatabaseSession):
     return details
 
 
-def user_view_transactions(id: str, db:AnnotatedDatabaseSession):
+def user_view_transactions(id: str, db: AnnotatedDatabaseSession):
     transactions = get_transactions(id, db)
     if not transactions:
         logger.error(
