@@ -4,18 +4,18 @@ from typing import Dict, Optional
 from src.config.settings import DefaultSettings
 
 
-def token_response(token: str):
-    return {"access_token": token}
+# def token_response(token: str):
+#     return token
 
 
-def sign_jwt(user_id: str, settings: DefaultSettings) -> Dict[str, str]:
+def sign_jwt(user_id: str, settings: DefaultSettings) -> str:
     payload = {"user_id": user_id, "expires": time.time() + 600}
     token = jwt.encode(
         payload,
         settings.secret.get_secret_value(),
         algorithm=settings.algorithm,
     )
-    return token_response(token)
+    return token
 
 
 # checks the validity of token: expiry time

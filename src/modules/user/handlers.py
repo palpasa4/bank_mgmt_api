@@ -1,7 +1,7 @@
 from email import message
 from sqlalchemy import select
 from websockets import StatusLike
-from src.dbschemas.tables import UserSchema, BankAccount, Transactions
+from src.dbschemas.user import UserSchema, BankAccount, Transactions
 from src.api.entrypoint.user.models import *
 from src.api.entrypoint.user.responses import *
 from fastapi import HTTPException, Depends
@@ -18,7 +18,7 @@ from src.modules.user.queries import (
     get_transactions,
 )
 from src.modules.admin.exceptions import *
-from src.core.exceptions import *
+from src.core.handlers.exceptions import *
 from src.modules.user.exceptions import *
 
 

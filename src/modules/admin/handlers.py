@@ -1,7 +1,7 @@
 import stat
 import uuid, hashlib
 from sqlalchemy import select
-from src.dbschemas.tables import UserSchema, BankAccount, Transactions
+from src.dbschemas.user import UserSchema, BankAccount, Transactions
 from src.core.auth.helpers import hash_password, check_password, check_role
 from src.api.entrypoint.admin.models import CreateUserModel, AdminLoginModel
 from src.api.dependencies import AnnotatedDatabaseSession
@@ -15,15 +15,16 @@ from src.modules.admin.queries import (
     get_admin,
     add_account,
     get_details,
-    get_transactions,
+    get_specific_user_detail,
+    get_transactions
 )
 from src.core.logconfig import logger
 from src.modules.admin.exceptions import *
 from src.modules.user.exceptions import *
-from src.core.exceptions import *
+from src.core.handlers.exceptions import *
 
 
-def check_valid_admin(model: AdminLoginModel, db: AnnotatedDatabaseSession):
+def check_valid_admin(model: AdminLoginModel, db:AnnotatedDatabaseSession):
     admin = get_admin(model, db)
     if admin is None or not check_password(
         model.password.get_secret_value(), str(admin.password)
@@ -37,7 +38,7 @@ def check_valid_admin(model: AdminLoginModel, db: AnnotatedDatabaseSession):
     return admin
 
 
-def check_ifadmin(id: str, db: AnnotatedDatabaseSession):
+def check_ifadmin(id: str, db:AnnotatedDatabaseSession):
     if check_role(id, db) != "admin":
         logger.error(f"Unauthorized access attempt by user {id}")
         raise UserPermissionDeniedException(
@@ -69,7 +70,7 @@ def check_user_details(model: CreateUserModel):
         )
 
 
-def check_duplicate_user(username: str, db: AnnotatedDatabaseSession):
+def check_duplicate_user(username: str, db:AnnotatedDatabaseSession):
     user = get_user(username, db)
     if user:
         logger.error("Admin attempted to create a user with an existing username")
@@ -78,13 +79,14 @@ def check_duplicate_user(username: str, db: AnnotatedDatabaseSession):
         )
 
 
-def create_user(model: CreateUserModel, db: AnnotatedDatabaseSession):
+def create_user(model: CreateUserModel, db:AnnotatedDatabaseSession)-> list:
     try:
         new_cust_id = f"CUST-{str(uuid.uuid4())[:8]}"
         password = hashlib.sha256(model.username.encode()).hexdigest()[:12]
         hashed_pw = hash_password(password)
         add_user(model, new_cust_id, password, hashed_pw, db)
         create_bank_acc(model, new_cust_id, db)
+        return [new_cust_id,password]
     except Exception as e:
         logger.error(
             f"Database error: Unable to add user '{model.username}' to table 'user_data'.Error: {str(e)}"
@@ -92,7 +94,7 @@ def create_user(model: CreateUserModel, db: AnnotatedDatabaseSession):
         raise DatabaseException("Database error: Unable to add user.", status_code=500)
 
 
-def create_bank_acc(model: CreateUserModel, new_cust, db: AnnotatedDatabaseSession):
+def create_bank_acc(model: CreateUserModel, new_cust, db:AnnotatedDatabaseSession):
     try:
         new_bankid = f"ACC-{str(uuid.uuid4())[:8]}"
         add_account(
@@ -113,20 +115,23 @@ def create_bank_acc(model: CreateUserModel, new_cust, db: AnnotatedDatabaseSessi
         )
 
 
-# remaining work
-def admin_view_details(db: AnnotatedDatabaseSession):
-    users_list = get_details(id, db)
+def admin_view_details(db:AnnotatedDatabaseSession):
+    users_list = get_details(db)
     if not users_list:
         logger.error("Database Exception: No details found!")
         raise DetailNotFoundException(message="No details found!", status_code=404)
     return users_list
 
 
-def admin_view_specific_detail(db: AnnotatedDatabaseSession):
-    pass
+def admin_view_specific_detail(id:str,db:AnnotatedDatabaseSession):
+    users_detail=get_specific_user_detail(id,db)
+    if not users_detail:
+        logger.error("Database Exception: No details found!")
+        raise DetailNotFoundException(message="No details found!", status_code=404)
+    return users_detail
 
 
-def admin_view_transactions(db: AnnotatedDatabaseSession):
+def admin_view_transactions(db:AnnotatedDatabaseSession):
     transaction_list = get_transactions(id, db)
     if not transaction_list:
         logger.error("Database Error: No transactions found. ")

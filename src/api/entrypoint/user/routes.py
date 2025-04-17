@@ -1,6 +1,6 @@
 from src.api.entrypoint.user.responses import UserViewDetails
 from fastapi import APIRouter, Depends, HTTPException
-from src.dbschemas.tables import UserSchema
+from src.dbschemas.user import UserSchema
 from src.api.entrypoint.user.models import UserLoginModel, Amount
 from src.core.auth.auth_handler import sign_jwt
 from src.core.auth.helpers import check_password, check_role
@@ -42,7 +42,6 @@ def deposit_amount(
 ):
     check_ifuser(id, db)
     account = deposit(model, id, db)
-    breakpoint()
     logger.info(
         f"Amount of {model.amount} deposited to bank account {account.bank_acc_id}"
     )

@@ -1,6 +1,3 @@
-# from config.database import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
-# from dotenv import load_dotenv
-# import os
 from ast import main
 from pydantic import BaseModel, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
