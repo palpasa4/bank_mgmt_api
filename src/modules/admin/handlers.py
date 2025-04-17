@@ -23,7 +23,7 @@ from src.modules.user.exceptions import *
 from src.core.exceptions import *
 
 
-def check_valid_admin(model: AdminLoginModel, db:AnnotatedDatabaseSession):
+def check_valid_admin(model: AdminLoginModel, db: AnnotatedDatabaseSession):
     admin = get_admin(model, db)
     if admin is None or not check_password(
         model.password.get_secret_value(), str(admin.password)
@@ -37,7 +37,7 @@ def check_valid_admin(model: AdminLoginModel, db:AnnotatedDatabaseSession):
     return admin
 
 
-def check_ifadmin(id: str, db:AnnotatedDatabaseSession):
+def check_ifadmin(id: str, db: AnnotatedDatabaseSession):
     if check_role(id, db) != "admin":
         logger.error(f"Unauthorized access attempt by user {id}")
         raise UserPermissionDeniedException(
@@ -69,7 +69,7 @@ def check_user_details(model: CreateUserModel):
         )
 
 
-def check_duplicate_user(username: str, db:AnnotatedDatabaseSession):
+def check_duplicate_user(username: str, db: AnnotatedDatabaseSession):
     user = get_user(username, db)
     if user:
         logger.error("Admin attempted to create a user with an existing username")
@@ -78,7 +78,7 @@ def check_duplicate_user(username: str, db:AnnotatedDatabaseSession):
         )
 
 
-def create_user(model: CreateUserModel, db:AnnotatedDatabaseSession):
+def create_user(model: CreateUserModel, db: AnnotatedDatabaseSession):
     try:
         new_cust_id = f"CUST-{str(uuid.uuid4())[:8]}"
         password = hashlib.sha256(model.username.encode()).hexdigest()[:12]
@@ -92,7 +92,7 @@ def create_user(model: CreateUserModel, db:AnnotatedDatabaseSession):
         raise DatabaseException("Database error: Unable to add user.", status_code=500)
 
 
-def create_bank_acc(model: CreateUserModel, new_cust, db:AnnotatedDatabaseSession):
+def create_bank_acc(model: CreateUserModel, new_cust, db: AnnotatedDatabaseSession):
     try:
         new_bankid = f"ACC-{str(uuid.uuid4())[:8]}"
         add_account(

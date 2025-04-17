@@ -9,7 +9,7 @@ from src.config.settings import AppSettings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.settings = AppSettings() 
+    app.state.settings = AppSettings()
     print(app.state.settings)
     print("Starting Server")
     init_db(app.state.settings.database)

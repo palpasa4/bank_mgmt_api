@@ -13,8 +13,8 @@ Base = declarative_base()
 def init_db(settings: DatabaseSettings):
     global _engine
     _engine = create_engine(
-    f"postgresql://{settings.user}:{settings.password.get_secret_value()}@{settings.host}:{settings.port}/{settings.name}"
-)
+        f"postgresql://{settings.user}:{settings.password.get_secret_value()}@{settings.host}:{settings.port}/{settings.name}"
+    )
     Base.metadata.create_all(bind=_engine)
 
 

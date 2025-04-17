@@ -26,7 +26,11 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 
 # admin login
 @router.post("/login/", tags=["admin_login"], status_code=200)
-async def admin_login(model: AdminLoginModel, db: AnnotatedDatabaseSession,settings:AnnotatedDefaultSettings):
+async def admin_login(
+    model: AdminLoginModel,
+    db: AnnotatedDatabaseSession,
+    settings: AnnotatedDefaultSettings,
+):
     admin = check_valid_admin(model, db)
     token = sign_jwt(str(admin.admin_id), settings)
     logger.info(f"Admin login successful for username: {model.username}")
@@ -54,8 +58,8 @@ def create_user_resource(
 # view details
 @router.get("/details/")
 def view_details(
-    request: Request, 
-    db: AnnotatedDatabaseSession, 
+    request: Request,
+    db: AnnotatedDatabaseSession,
     id: str = Depends(JWTBearer()),
 ):
     check_ifadmin(id, db)
@@ -66,9 +70,11 @@ def view_details(
 
 # view specific user's details
 @router.get("/details/")
-def view_specific_detail(id:str,db: AnnotatedDatabaseSession, adminid:str=Depends(JWTBearer())):
+def view_specific_detail(
+    id: str, db: AnnotatedDatabaseSession, adminid: str = Depends(JWTBearer())
+):
     check_ifadmin(adminid, db)
-    details=admin_view_specific_detail(db)
+    details = admin_view_specific_detail(db)
     logger.info(f"Details of customer with ID: {id} viewed by admin with ID: {adminid}")
 
 

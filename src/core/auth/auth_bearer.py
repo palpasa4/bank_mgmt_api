@@ -20,25 +20,32 @@ class JWTBearer(HTTPBearer):
         settings: DefaultSettings = request.app.state.settings.default
         if credentials:
             if not credentials.scheme == "Bearer":
-                logger.info("Authentication failed: Invalid authentication scheme (HTTP 403).")
+                logger.info(
+                    "Authentication failed: Invalid authentication scheme (HTTP 403)."
+                )
                 raise HTTPException(
                     status_code=403, detail="Invalid authentication scheme."
                 )
-            if not self.verify_jwt(credentials.credentials,settings):
-                logger.info("Authentication failed: Invalid or expired token (HTTP 403).")
+            if not self.verify_jwt(credentials.credentials, settings):
+                logger.info(
+                    "Authentication failed: Invalid or expired token (HTTP 403)."
+                )
                 raise HTTPException(
                     status_code=403, detail="Invalid token or expired token."
                 )
             token = credentials.credentials
-            decoded_token = jwt.decode(token, settings.secret.get_secret_value(), algorithms=[settings.algorithm])
+            decoded_token = jwt.decode(
+                token,
+                settings.secret.get_secret_value(),
+                algorithms=[settings.algorithm],
+            )
             username = decoded_token.get("user_id")
             return username
         else:
             logger.info("Authentication failed: Invalid authorization code (HTTP 403).")
             raise HTTPException(status_code=403, detail="Invalid authorization code.")
 
-
-    def verify_jwt(self, jwtoken: str,settings:DefaultSettings) -> bool:
+    def verify_jwt(self, jwtoken: str, settings: DefaultSettings) -> bool:
         # breakpoint()
         isTokenValid: bool = False
 
