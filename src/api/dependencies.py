@@ -10,4 +10,5 @@ def get_default_settings(request: Request) -> DefaultSettings:
 
 
 AnnotatedDatabaseSession = Annotated[Session, Depends(get_db_session)]
+
 AnnotatedDefaultSettings = Annotated[DefaultSettings, Depends(get_default_settings)]

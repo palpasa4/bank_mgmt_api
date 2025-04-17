@@ -1,12 +1,12 @@
 from typing import Optional
 from src.api.entrypoint.user.models import Amount, UserLoginModel
-from src.dbschemas.tables import AdminSchema, UserSchema, BankAccount, Transactions
-from src.api.dependencies import AnnotatedDatabaseSession
+from src.dbschemas.user import UserSchema, BankAccount, Transactions
+from src.dbschemas.admin import AdminSchema
 from datetime import datetime
 from sqlalchemy import select
 
 
-def get_user(model: UserLoginModel, db: AnnotatedDatabaseSession):
+def get_user(model: UserLoginModel, db):
     user = db_admin = db.query(UserSchema).filter_by(username=model.username).first()
     return user
 

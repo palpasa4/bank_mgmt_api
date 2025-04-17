@@ -1,5 +1,6 @@
 from datetime import datetime
-from pydantic import BaseModel
+from email import message
+from pydantic import BaseModel, SecretStr
 
 
 class TokenResponse(BaseModel):
@@ -7,11 +8,11 @@ class TokenResponse(BaseModel):
 
 
 class UserResponse(BaseModel):
+    message:str
     id: str
-    password: str
+    password: SecretStr
 
 
-# my models
 class AdminViewDetails(BaseModel):
     cust_id: str
     username: str

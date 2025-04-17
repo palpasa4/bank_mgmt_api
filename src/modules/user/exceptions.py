@@ -1,4 +1,4 @@
-from src.core.exceptions import *
+from src.core.handlers.exceptions import *
 
 
 class InvalidUserLoginException(AuthException): ...

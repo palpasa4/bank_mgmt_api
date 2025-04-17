@@ -1,8 +1,9 @@
 from sqlalchemy import select
-from src.dbschemas import user
-from src.dbschemas.tables import UserSchema
+from src.dbschemas import admin
+from src.dbschemas.user import UserSchema
 from src.api.entrypoint.admin.models import CreateUserModel
-from src.dbschemas.tables import AdminSchema, UserSchema, BankAccount, Transactions
+from src.dbschemas.user import UserSchema, BankAccount, Transactions
+from src.dbschemas.admin import AdminSchema
 from src.api.entrypoint.admin.models import CreateUserModel, AdminLoginModel
 from src.api.entrypoint.admin.responses import AdminViewDetails, AdminTransactionDetails
 
@@ -39,7 +40,7 @@ def add_account(id, fullname, address, phone_number, opening_balance, new_cust, 
     db.commit()
 
 
-def get_details(id, db):
+def get_details(db):
     details = db.execute(
         select(
             UserSchema.cust_id,
@@ -54,6 +55,23 @@ def get_details(id, db):
     ).fetchall()
     users_list = [AdminViewDetails(**dict(detail._mapping)) for detail in details]
     return users_list
+
+
+def get_specific_user_detail(id:str,db):
+    details = db.execute(
+        select(
+            UserSchema.cust_id,
+            UserSchema.username,
+            BankAccount.bank_acc_id,
+            BankAccount.fullname,
+            BankAccount.address,
+            BankAccount.contact_no,
+            BankAccount.created_at,
+            BankAccount.updated_at,
+        ).outerjoin(BankAccount, UserSchema.cust_id == BankAccount.cust_id)
+         .where(UserSchema.cust_id == id)
+    ).first()
+    return AdminViewDetails(**dict(details._mapping))
 
 
 def get_transactions(id, db):

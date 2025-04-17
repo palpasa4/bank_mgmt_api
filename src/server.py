@@ -3,7 +3,7 @@ from src.config.database import init_db
 from fastapi import FastAPI
 from src.api.entrypoint.admin import routes as admin_routes
 from src.api.entrypoint.user import routes as user_routes
-from src.core.middleware import CustomExceptionMiddleware
+from src.core.handlers.middleware import CustomExceptionMiddleware
 from src.config.settings import AppSettings
 
 
